@@ -161,7 +161,7 @@ const indianStates = [
 
 const RegisterHospital = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, refreshProfile } = useAuth();
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -220,7 +220,8 @@ const RegisterHospital = () => {
       const res = await api.post('/register', form);
       if (res.success) {
         localStorage.removeItem('arogya_register_hospital_form');
-        navigate('/pending');
+        await refreshProfile();
+        navigate('/dashboard');
       }
     } catch (err) {
       console.error(err);
