@@ -149,6 +149,16 @@ const FileUploadField = ({ label, onUploadComplete, value, accept = ".pdf,.jpg,.
   );
 };
 
+const indianStates = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat",
+  "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh",
+  "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
+  "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh",
+  "Uttarakhand", "West Bengal", "Andaman and Nicobar Islands", "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Jammu and Kashmir",
+  "Ladakh", "Lakshadweep", "Puducherry"
+];
+
 const RegisterHospital = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -316,15 +326,21 @@ const RegisterHospital = () => {
                     className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-850 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
                   />
                 </div>
-                <div>
+                 <div>
                   <label className="block text-slate-500 font-bold uppercase mb-1">State</label>
                   <input
                     type="text"
+                    list="states-list"
                     placeholder="Karnataka"
                     value={form.state}
                     onChange={(e) => setForm({...form, state: e.target.value})}
                     className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-850 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
                   />
+                  <datalist id="states-list">
+                    {indianStates.map((s) => (
+                      <option key={s} value={s} />
+                    ))}
+                  </datalist>
                 </div>
                 <div>
                   <label className="block text-slate-500 font-bold uppercase mb-1">Pincode</label>
