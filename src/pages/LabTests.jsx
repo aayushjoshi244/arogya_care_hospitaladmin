@@ -17,10 +17,22 @@ const LabTests = () => {
   const [submitting, setSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Form State
-  const [testName, setTestName] = useState('');
-  const [price, setPrice] = useState('');
-  const [category, setCategory] = useState('Pathology');
+  // Form State (persisted in localStorage)
+  const [testName, setTestName] = useState(() => localStorage.getItem('arogya_lab_test_name') || '');
+  const [price, setPrice] = useState(() => localStorage.getItem('arogya_lab_test_price') || '');
+  const [category, setCategory] = useState(() => localStorage.getItem('arogya_lab_test_category') || 'Pathology');
+
+  useEffect(() => {
+    localStorage.setItem('arogya_lab_test_name', testName);
+  }, [testName]);
+
+  useEffect(() => {
+    localStorage.setItem('arogya_lab_test_price', price);
+  }, [price]);
+
+  useEffect(() => {
+    localStorage.setItem('arogya_lab_test_category', category);
+  }, [category]);
 
   useEffect(() => {
     fetchLabTests();
@@ -64,6 +76,8 @@ const LabTests = () => {
         setTests(prev => [...prev, res.data]);
         setTestName('');
         setPrice('');
+        localStorage.removeItem('arogya_lab_test_name');
+        localStorage.removeItem('arogya_lab_test_price');
         setSuccessMsg('Lab test added successfully!');
         setTimeout(() => setSuccessMsg(''), 3000);
       }

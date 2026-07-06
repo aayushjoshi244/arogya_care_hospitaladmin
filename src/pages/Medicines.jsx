@@ -18,11 +18,27 @@ const Medicines = () => {
   const [submitting, setSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Form State
-  const [medName, setMedName] = useState('');
-  const [dosageType, setDosageType] = useState('Tablet');
-  const [price, setPrice] = useState('');
-  const [stock, setStock] = useState('');
+  // Form State (persisted in localStorage)
+  const [medName, setMedName] = useState(() => localStorage.getItem('arogya_med_name') || '');
+  const [dosageType, setDosageType] = useState(() => localStorage.getItem('arogya_med_dosage') || 'Tablet');
+  const [price, setPrice] = useState(() => localStorage.getItem('arogya_med_price') || '');
+  const [stock, setStock] = useState(() => localStorage.getItem('arogya_med_stock') || '');
+
+  useEffect(() => {
+    localStorage.setItem('arogya_med_name', medName);
+  }, [medName]);
+
+  useEffect(() => {
+    localStorage.setItem('arogya_med_dosage', dosageType);
+  }, [dosageType]);
+
+  useEffect(() => {
+    localStorage.setItem('arogya_med_price', price);
+  }, [price]);
+
+  useEffect(() => {
+    localStorage.setItem('arogya_med_stock', stock);
+  }, [stock]);
 
   useEffect(() => {
     fetchMedicines();
@@ -68,6 +84,9 @@ const Medicines = () => {
         setMedName('');
         setPrice('');
         setStock('');
+        localStorage.removeItem('arogya_med_name');
+        localStorage.removeItem('arogya_med_price');
+        localStorage.removeItem('arogya_med_stock');
         setSuccessMsg('Medicine catalog item added successfully!');
         setTimeout(() => setSuccessMsg(''), 3000);
       }

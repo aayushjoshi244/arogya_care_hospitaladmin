@@ -35,20 +35,23 @@ const Doctors = () => {
 
   // Onboard Modal Form
   const [onboardModalOpen, setOnboardModalOpen] = useState(false);
-  const [onboardForm, setOnboardForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    gender: 'Male',
-    date_of_birth: '',
-    specialization_id: '',
-    medical_registration_number: '',
-    qualification: '',
-    experience_years: '',
-    consultation_fee: 500,
-    slot_duration_minutes: 15,
-    max_patients_per_day: 20,
-    bio: ''
+  const [onboardForm, setOnboardForm] = useState(() => {
+    const saved = localStorage.getItem('arogya_onboard_doctor_form');
+    return saved ? JSON.parse(saved) : {
+      name: '',
+      email: '',
+      phone: '',
+      gender: 'Male',
+      date_of_birth: '',
+      specialization_id: '',
+      medical_registration_number: '',
+      qualification: '',
+      experience_years: '',
+      consultation_fee: 500,
+      slot_duration_minutes: 15,
+      max_patients_per_day: 20,
+      bio: ''
+    };
   });
 
   // Edit Modal Form
@@ -75,6 +78,10 @@ const Doctors = () => {
     fetchDoctors();
     fetchSpecializations();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('arogya_onboard_doctor_form', JSON.stringify(onboardForm));
+  }, [onboardForm]);
 
   const fetchDoctors = async () => {
     setLoading(true);
@@ -182,6 +189,7 @@ const Doctors = () => {
       max_patients_per_day: 20,
       bio: ''
     });
+    localStorage.removeItem('arogya_onboard_doctor_form');
   };
 
   const getStatusBadge = (status) => {
