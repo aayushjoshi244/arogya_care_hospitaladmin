@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { 
@@ -170,30 +170,37 @@ const RegisterHospital = () => {
     navigate('/login');
   };
 
-  // Form payload
-  const [form, setForm] = useState({
-    name: '',
-    registration_number: '',
-    established_year: '',
-    address: '',
-    city: '',
-    state: '',
-    pincode: '',
-    phone: '',
-    email: '',
-    website: '',
-    google_maps_link: '',
-    owner_name: '',
-    owner_phone: '',
-    owner_email: '',
-    admin_name: '',
-    admin_phone: '',
-    license_document_url: '',
-    pan_document_url: '',
-    gst_document_url: '',
-    admin_aadhaar_url: '',
-    admin_id_card_url: ''
+  // Form payload (persisted in localStorage to prevent loss on page refresh)
+  const [form, setForm] = useState(() => {
+    const saved = localStorage.getItem('arogya_register_hospital_form');
+    return saved ? JSON.parse(saved) : {
+      name: '',
+      registration_number: '',
+      established_year: '',
+      address: '',
+      city: '',
+      state: '',
+      pincode: '',
+      phone: '',
+      email: '',
+      website: '',
+      google_maps_link: '',
+      owner_name: '',
+      owner_phone: '',
+      owner_email: '',
+      admin_name: '',
+      admin_phone: '',
+      license_document_url: '',
+      pan_document_url: '',
+      gst_document_url: '',
+      admin_aadhaar_url: '',
+      admin_id_card_url: ''
+    };
   });
+
+  useEffect(() => {
+    localStorage.setItem('arogya_register_hospital_form', JSON.stringify(form));
+  }, [form]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -212,6 +219,7 @@ const RegisterHospital = () => {
     try {
       const res = await api.post('/register', form);
       if (res.success) {
+        localStorage.removeItem('arogya_register_hospital_form');
         navigate('/pending');
       }
     } catch (err) {
