@@ -41,6 +41,7 @@ const Doctors = () => {
       name: '',
       email: '',
       phone: '',
+      password: '',
       gender: 'Male',
       date_of_birth: '',
       specialization_id: '',
@@ -178,6 +179,7 @@ const Doctors = () => {
       name: '',
       email: '',
       phone: '',
+      password: '',
       gender: 'Male',
       date_of_birth: '',
       specialization_id: '',
@@ -445,6 +447,16 @@ const Doctors = () => {
                     placeholder="e.g. +91 9876543210"
                     value={onboardForm.phone}
                     onChange={(e) => setOnboardForm({...onboardForm, phone: e.target.value})}
+                    className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-500 font-bold uppercase mb-1">Temporary Password</label>
+                  <input
+                    type="password" required
+                    placeholder="Set temporary login password..."
+                    value={onboardForm.password}
+                    onChange={(e) => setOnboardForm({...onboardForm, password: e.target.value})}
                     className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none"
                   />
                 </div>
