@@ -14,6 +14,7 @@ import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
 import LabTests from './pages/LabTests';
 import Medicines from './pages/Medicines';
+import Technicians from './pages/Technicians';
 import NotFound from './pages/NotFound';
 
 const ProtectedRoute = ({ children, requireVerification = true }) => {
@@ -68,6 +69,7 @@ function App() {
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="doctors" element={<Doctors />} />
+            <Route path="technicians" element={<Technicians />} />
             <Route path="scheduling" element={<Scheduling />} />
             <Route path="live-board" element={<LiveBoard />} />
             <Route path="analytics" element={<Analytics />} />

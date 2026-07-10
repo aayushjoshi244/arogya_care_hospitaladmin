@@ -12,7 +12,8 @@ import {
   ChevronRight,
   FlaskConical,
   Pill,
-  Lock
+  Lock,
+  Users
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import logo from '../../assets/arogya_logo.jpg';
@@ -20,6 +21,7 @@ import logo from '../../assets/arogya_logo.jpg';
 const menuItems = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', requiredApproval: false },
   { path: '/doctors', icon: Stethoscope, label: 'Doctors', requiredApproval: false },
+  { path: '/technicians', icon: Users, label: 'Lab Technicians', requiredApproval: false },
   { path: '/lab-tests', icon: FlaskConical, label: 'Lab Tests', requiredApproval: false },
   { path: '/medicines', icon: Pill, label: 'Medicines', requiredApproval: false },
   { path: '/scheduling', icon: Calendar, label: 'Scheduling', requiredApproval: true },
