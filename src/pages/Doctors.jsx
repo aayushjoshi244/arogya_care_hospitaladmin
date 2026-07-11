@@ -19,7 +19,8 @@ import {
   GraduationCap,
   Calendar,
   X,
-  Edit2
+  Edit2,
+  Trash2
 } from 'lucide-react';
 
 const Doctors = () => {
@@ -32,6 +33,24 @@ const Doctors = () => {
   // Filters
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+
+  const handleDeleteDoctor = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to remove Dr. ${name}? This will permanently delete their profile and log them out of all active clinical sessions.`)) {
+      return;
+    }
+    setError('');
+    setMessage('');
+    try {
+      const res = await api.delete(`/doctors/${id}`);
+      if (res.success) {
+        setMessage(`Dr. ${name} was successfully removed.`);
+        fetchDoctors();
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Failed to delete doctor profile');
+    }
+  };
 
   // Onboard Modal Form
   const [onboardModalOpen, setOnboardModalOpen] = useState(false);
@@ -374,7 +393,14 @@ const Doctors = () => {
               </div>
 
               {/* Modify actions */}
-              <div className="mt-5 pt-4 border-t border-slate-50 flex items-center justify-end">
+              <div className="mt-5 pt-4 border-t border-slate-50 flex items-center justify-between">
+                <button
+                  onClick={() => handleDeleteDoctor(doc.id, doc.name)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 border border-error/15 text-error hover:bg-error-bg hover:text-error-text rounded-xl text-xs font-bold transition-all"
+                >
+                  <Trash2 size={12} />
+                  Remove
+                </button>
                 <button
                   onClick={() => openEditModal(doc)}
                   className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 text-slate-600 hover:border-primary/20 hover:bg-primary-bg hover:text-primary rounded-xl text-xs font-bold transition-all"

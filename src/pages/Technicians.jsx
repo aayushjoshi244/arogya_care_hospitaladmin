@@ -11,7 +11,8 @@ import {
   Phone,
   Mail,
   Lock,
-  X
+  X,
+  Trash2
 } from 'lucide-react';
 
 const Technicians = () => {
@@ -42,6 +43,24 @@ const Technicians = () => {
   useEffect(() => {
     fetchTechnicians();
   }, []);
+
+  const handleDeleteTechnician = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to remove ${name}? This will permanently delete their profile and revoke their credentials access.`)) {
+      return;
+    }
+    setError('');
+    setMessage('');
+    try {
+      const res = await api.delete(`/technicians/${id}`);
+      if (res.success) {
+        setMessage(`${name} was successfully removed.`);
+        fetchTechnicians();
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Failed to remove technician profile');
+    }
+  };
 
   const fetchTechnicians = async () => {
     setLoading(true);
@@ -229,6 +248,17 @@ const Technicians = () => {
                     <p className="text-slate-400 italic text-[10px]">No assigned tests registered.</p>
                   </div>
                 )}
+
+                {/* Actions */}
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-end">
+                  <button
+                    onClick={() => handleDeleteTechnician(tech.id, tech.name)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 border border-error/15 text-error hover:bg-error-bg hover:text-error-text rounded-xl text-[10px] font-bold transition-all"
+                  >
+                    <Trash2 size={12} />
+                    Remove Technician
+                  </button>
+                </div>
 
               </div>
             </div>
