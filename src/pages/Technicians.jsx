@@ -35,6 +35,7 @@ const Technicians = () => {
 
   const [newTestName, setNewTestName] = useState('');
   const [newTestPrice, setNewTestPrice] = useState('');
+  const [newTestCategory, setNewTestCategory] = useState('Pathology');
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -59,10 +60,11 @@ const Technicians = () => {
     if (!newTestName || !newTestPrice) return;
     setOnboardForm(prev => ({
       ...prev,
-      tests: [...(prev.tests || []), { test_name: newTestName, price: parseFloat(newTestPrice) || 0 }]
+      tests: [...(prev.tests || []), { test_name: newTestName, price: parseFloat(newTestPrice) || 0, category: newTestCategory }]
     }));
     setNewTestName('');
     setNewTestPrice('');
+    setNewTestCategory('Pathology');
   };
 
   const handleRemoveTestFromOnboard = (indexToRemove) => {
@@ -103,6 +105,7 @@ const Technicians = () => {
     });
     setNewTestName('');
     setNewTestPrice('');
+    setNewTestCategory('Pathology');
   };
 
   const filteredTechs = technicians.filter(tech => 
@@ -216,7 +219,7 @@ const Technicians = () => {
                     <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
                       {tech.hospital_lab_tests.map((t, idx) => (
                         <span key={idx} className="bg-primary-bg text-primary-dark font-extrabold px-2 py-0.5 rounded-lg text-[9px] border border-primary/10">
-                          {t.test_name} (₹{t.price})
+                          {t.test_name} [{t.category || 'Pathology'}] (₹{t.price})
                         </span>
                       ))}
                     </div>
@@ -312,7 +315,22 @@ const Technicians = () => {
                       className="block w-full border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 focus:outline-none text-[11px]"
                     />
                   </div>
-                  <div className="w-28">
+                  <div className="w-32">
+                    <label className="block text-slate-400 font-semibold mb-0.5 text-[10px]">Category</label>
+                    <select
+                      value={newTestCategory}
+                      onChange={(e) => setNewTestCategory(e.target.value)}
+                      className="block w-full border border-slate-200 bg-white rounded-xl px-3 py-1.5 text-slate-800 focus:outline-none text-[11px]"
+                    >
+                      <option value="Pathology">Pathology</option>
+                      <option value="Radiology">Radiology</option>
+                      <option value="Cardiology">Cardiology</option>
+                      <option value="Neurology">Neurology</option>
+                      <option value="Immunology">Immunology</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div className="w-24">
                     <label className="block text-slate-400 font-semibold mb-0.5 text-[10px]">Price (₹)</label>
                     <input
                       type="number"
@@ -335,8 +353,11 @@ const Technicians = () => {
                 {onboardForm.tests && onboardForm.tests.length > 0 && (
                   <div className="border border-slate-100 rounded-2xl p-2.5 max-h-36 overflow-y-auto space-y-1.5 bg-slate-50/50">
                     {onboardForm.tests.map((test, index) => (
-                      <div key={index} className="flex items-center justify-between bg-white border border-slate-200/60 px-3 py-1.5 rounded-xl">
-                        <span className="font-semibold text-slate-700">{test.test_name}</span>
+                      <div key={index} className="flex items-center justify-between bg-white border border-slate-200/60 px-3 py-1.5 rounded-xl text-[10px]">
+                        <div>
+                          <span className="font-semibold text-slate-700">{test.test_name}</span>
+                          <span className="ml-2 text-slate-400 font-medium">({test.category})</span>
+                        </div>
                         <div className="flex items-center gap-3">
                           <span className="font-extrabold text-primary">₹{test.price}</span>
                           <button

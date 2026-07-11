@@ -12,7 +12,6 @@ import Scheduling from './pages/Scheduling';
 import LiveBoard from './pages/LiveBoard';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
-import LabTests from './pages/LabTests';
 import Medicines from './pages/Medicines';
 import Technicians from './pages/Technicians';
 import NotFound from './pages/NotFound';
@@ -74,7 +73,6 @@ function App() {
             <Route path="live-board" element={<LiveBoard />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="settings" element={<Settings />} />
-            <Route path="lab-tests" element={<LabTests />} />
             <Route path="medicines" element={<Medicines />} />
             <Route path="*" element={<NotFound />} />
           </Route>

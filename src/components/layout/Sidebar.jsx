@@ -22,7 +22,6 @@ const menuItems = [
   { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', requiredApproval: false },
   { path: '/doctors', icon: Stethoscope, label: 'Doctors', requiredApproval: false },
   { path: '/technicians', icon: Users, label: 'Lab Technicians', requiredApproval: false },
-  { path: '/lab-tests', icon: FlaskConical, label: 'Lab Tests', requiredApproval: false },
   { path: '/medicines', icon: Pill, label: 'Medicines', requiredApproval: false },
   { path: '/scheduling', icon: Calendar, label: 'Scheduling', requiredApproval: true },
   { path: '/live-board', icon: Activity, label: 'Live Board', requiredApproval: true },
