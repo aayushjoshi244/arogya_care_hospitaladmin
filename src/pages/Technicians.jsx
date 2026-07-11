@@ -29,8 +29,12 @@ const Technicians = () => {
     name: '',
     email: '',
     phone: '',
-    password: ''
+    password: '',
+    tests: []
   });
+
+  const [newTestName, setNewTestName] = useState('');
+  const [newTestPrice, setNewTestPrice] = useState('');
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -49,6 +53,23 @@ const Technicians = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAddTestToOnboard = () => {
+    if (!newTestName || !newTestPrice) return;
+    setOnboardForm(prev => ({
+      ...prev,
+      tests: [...(prev.tests || []), { test_name: newTestName, price: parseFloat(newTestPrice) || 0 }]
+    }));
+    setNewTestName('');
+    setNewTestPrice('');
+  };
+
+  const handleRemoveTestFromOnboard = (indexToRemove) => {
+    setOnboardForm(prev => ({
+      ...prev,
+      tests: (prev.tests || []).filter((_, idx) => idx !== indexToRemove)
+    }));
   };
 
   const handleOnboardSubmit = async (e) => {
@@ -77,8 +98,11 @@ const Technicians = () => {
       name: '',
       email: '',
       phone: '',
-      password: ''
+      password: '',
+      tests: []
     });
+    setNewTestName('');
+    setNewTestPrice('');
   };
 
   const filteredTechs = technicians.filter(tech => 
@@ -184,6 +208,25 @@ const Technicians = () => {
                     {tech.password_changed ? 'Completed' : 'Pending'}
                   </span>
                 </div>
+
+                {/* Handled Lab Tests */}
+                {tech.hospital_lab_tests && tech.hospital_lab_tests.length > 0 ? (
+                  <div className="mt-3 border-t border-slate-100 pt-2.5 space-y-1">
+                    <p className="text-slate-450 font-bold uppercase text-[9px] tracking-wide mb-1">Managed Lab Tests</p>
+                    <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                      {tech.hospital_lab_tests.map((t, idx) => (
+                        <span key={idx} className="bg-primary-bg text-primary-dark font-extrabold px-2 py-0.5 rounded-lg text-[9px] border border-primary/10">
+                          {t.test_name} (₹{t.price})
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-3 border-t border-slate-100 pt-2.5">
+                    <p className="text-slate-400 italic text-[10px]">No assigned tests registered.</p>
+                  </div>
+                )}
+
               </div>
             </div>
           ))}
@@ -197,7 +240,7 @@ const Technicians = () => {
       {/* Onboard Technician Modal */}
       {onboardModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl border border-slate-100 p-6 space-y-4 animate-in zoom-in duration-200">
+          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl border border-slate-100 p-6 space-y-4 animate-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-50 pb-3">
               <h3 className="text-lg font-bold text-slate-800">Onboard Lab Specialist</h3>
               <button onClick={() => setOnboardModalOpen(false)} className="p-1 text-slate-400 hover:bg-slate-50 rounded-lg">
@@ -206,48 +249,108 @@ const Technicians = () => {
             </div>
 
             <form onSubmit={handleOnboardSubmit} className="space-y-4">
-              <div>
-                <label className="block text-slate-500 font-bold uppercase mb-1">Full Name</label>
-                <input
-                  type="text" required
-                  placeholder="e.g. Anand Kumar"
-                  value={onboardForm.name}
-                  onChange={(e) => setOnboardForm({...onboardForm, name: e.target.value})}
-                  className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-slate-500 font-bold uppercase mb-1">Full Name</label>
+                  <input
+                    type="text" required
+                    placeholder="e.g. Anand Kumar"
+                    value={onboardForm.name}
+                    onChange={(e) => setOnboardForm({...onboardForm, name: e.target.value})}
+                    className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-500 font-bold uppercase mb-1">Email Address</label>
+                  <input
+                    type="email" required
+                    placeholder="e.g. anand.kumar@arogyacare.com"
+                    value={onboardForm.email}
+                    onChange={(e) => setOnboardForm({...onboardForm, email: e.target.value})}
+                    className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-slate-500 font-bold uppercase mb-1">Email Address</label>
-                <input
-                  type="email" required
-                  placeholder="e.g. anand.kumar@arogyacare.com"
-                  value={onboardForm.email}
-                  onChange={(e) => setOnboardForm({...onboardForm, email: e.target.value})}
-                  className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-slate-500 font-bold uppercase mb-1">Contact Phone</label>
+                  <input
+                    type="text" required
+                    placeholder="e.g. +91 9555431234"
+                    value={onboardForm.phone}
+                    onChange={(e) => setOnboardForm({...onboardForm, phone: e.target.value})}
+                    className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-500 font-bold uppercase mb-1">Temporary Password</label>
+                  <input
+                    type="password" required
+                    placeholder="Set temporary password..."
+                    value={onboardForm.password}
+                    onChange={(e) => setOnboardForm({...onboardForm, password: e.target.value})}
+                    className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-slate-500 font-bold uppercase mb-1">Contact Phone</label>
-                <input
-                  type="text" required
-                  placeholder="e.g. +91 9555431234"
-                  value={onboardForm.phone}
-                  onChange={(e) => setOnboardForm({...onboardForm, phone: e.target.value})}
-                  className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none"
-                />
-              </div>
+              {/* Dynamic Tests and Pricing Builder Section */}
+              <div className="border-t border-slate-100 pt-3 space-y-3">
+                <h4 className="font-bold text-slate-700 text-xs uppercase tracking-wide">Assign Managed Lab Tests & Pricing</h4>
+                
+                <div className="flex gap-2 items-end">
+                  <div className="flex-1">
+                    <label className="block text-slate-400 font-semibold mb-0.5 text-[10px]">Test Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Complete Blood Count"
+                      value={newTestName}
+                      onChange={(e) => setNewTestName(e.target.value)}
+                      className="block w-full border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 focus:outline-none text-[11px]"
+                    />
+                  </div>
+                  <div className="w-28">
+                    <label className="block text-slate-400 font-semibold mb-0.5 text-[10px]">Price (₹)</label>
+                    <input
+                      type="number"
+                      placeholder="350"
+                      value={newTestPrice}
+                      onChange={(e) => setNewTestPrice(e.target.value)}
+                      className="block w-full border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 focus:outline-none text-[11px]"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddTestToOnboard}
+                    className="px-3.5 py-1.5 bg-primary text-white font-extrabold rounded-xl hover:bg-primary-hover hover-scale text-[11px]"
+                  >
+                    + Add
+                  </button>
+                </div>
 
-              <div>
-                <label className="block text-slate-500 font-bold uppercase mb-1">Temporary Password</label>
-                <input
-                  type="password" required
-                  placeholder="Set temporary login password..."
-                  value={onboardForm.password}
-                  onChange={(e) => setOnboardForm({...onboardForm, password: e.target.value})}
-                  className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none"
-                />
+                {/* List of Added Tests */}
+                {onboardForm.tests && onboardForm.tests.length > 0 && (
+                  <div className="border border-slate-100 rounded-2xl p-2.5 max-h-36 overflow-y-auto space-y-1.5 bg-slate-50/50">
+                    {onboardForm.tests.map((test, index) => (
+                      <div key={index} className="flex items-center justify-between bg-white border border-slate-200/60 px-3 py-1.5 rounded-xl">
+                        <span className="font-semibold text-slate-700">{test.test_name}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="font-extrabold text-primary">₹{test.price}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTestFromOnboard(index)}
+                            className="text-error hover:text-error-text font-bold text-[10px] hover:underline"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end gap-3 pt-3 border-t border-slate-50">
