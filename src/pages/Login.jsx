@@ -132,7 +132,7 @@ const Login = () => {
         <div className="bg-white py-8 px-4 shadow-xl shadow-slate-100 sm:rounded-3xl border border-slate-100 sm:px-10">
           
           {/* Segmented Role Selector */}
-          <div className="grid grid-cols-3 gap-2 bg-slate-100 p-1.5 rounded-2xl mb-6">
+          <div className="grid grid-cols-3 gap-1.5 bg-slate-200/65 p-1 rounded-2xl mb-6">
             {[
               { id: 'administrator', label: 'Admin' },
               { id: 'doctor', label: 'Doctor' },
@@ -145,10 +145,10 @@ const Login = () => {
                   setRole(r.id);
                   setError('');
                 }}
-                className={`py-2 text-center rounded-xl font-bold text-xs transition-all ${
+                className={`py-2 px-3 text-center rounded-xl font-extrabold text-xs transition-all ${
                   role === r.id
-                    ? 'bg-white text-slate-800 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700'
+                    ? 'bg-primary text-white shadow-md scale-[1.02]'
+                    : 'text-slate-650 hover:text-slate-800 hover:bg-slate-300/40'
                 }`}
               >
                 {r.label}
