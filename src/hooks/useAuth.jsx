@@ -9,12 +9,14 @@ export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hospitalStatus, setHospitalStatus] = useState(''); // 'APPROVED', 'PENDING', etc.
+  const [hospitalData, setHospitalData] = useState(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const [hospLoading, setHospLoading] = useState(true);
 
   const fetchHospitalProfile = async (currentUser) => {
     if (!currentUser) {
       setHospitalStatus('');
+      setHospitalData(null);
       setIsRegistered(false);
       setHospLoading(false);
       return;
@@ -25,14 +27,17 @@ export const AuthProvider = ({ children }) => {
       if (res.success) {
         setIsRegistered(res.registered);
         setHospitalStatus(res.status || '');
+        setHospitalData(res.data || null);
       } else {
         setIsRegistered(false);
         setHospitalStatus('');
+        setHospitalData(null);
       }
     } catch (err) {
       console.error('Failed to load hospital profile in AuthProvider:', err.message);
       setIsRegistered(false);
       setHospitalStatus('');
+      setHospitalData(null);
     } finally {
       setHospLoading(false);
     }
@@ -104,6 +109,7 @@ export const AuthProvider = ({ children }) => {
       setSession(null);
       setIsRegistered(false);
       setHospitalStatus('');
+      setHospitalData(null);
     } catch (error) {
       console.error('Logout error:', error.message);
     } finally {
@@ -125,6 +131,7 @@ export const AuthProvider = ({ children }) => {
       logout, 
       isLoading, 
       hospitalStatus, 
+      hospitalData,
       isRegistered, 
       hospLoading, 
       refreshProfile 

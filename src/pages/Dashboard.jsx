@@ -14,13 +14,14 @@ import {
   Activity,
   FlaskConical,
   Pill,
-  Lock
+  Lock,
+  ShieldAlert
 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { hospitalStatus } = useAuth();
+  const { hospitalStatus, hospitalData } = useAuth();
   const [stats, setStats] = useState(null);
   const [revenueData, setRevenueData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,22 +66,52 @@ const Dashboard = () => {
     );
   }
 
+  // Parse suspension metadata if suspended
+  let suspensionMeta = null;
+  if (hospitalStatus === 'SUSPENDED' && hospitalData?.rejection_reason) {
+    try {
+      suspensionMeta = JSON.parse(hospitalData.rejection_reason);
+    } catch (e) {
+      // Ignore
+    }
+  }
+
   // Onboarding setup view for unapproved hospitals
   if (!isApproved) {
     return (
       <div className="space-y-6 animate-in fade-in duration-300">
         {/* Verification Status Alert */}
-        <div className="bg-amber-50 border border-amber-200/50 p-6 rounded-3xl text-amber-800 flex items-start gap-4 shadow-sm shadow-amber-100/30">
-          <div className="p-3 bg-amber-100 text-amber-700 rounded-2xl shrink-0 mt-0.5">
-            <Clock size={24} className="animate-pulse" />
+        {hospitalStatus === 'SUSPENDED' ? (
+          <div className="bg-red-50 border border-red-200/50 p-6 rounded-3xl text-red-800 flex items-start gap-4 shadow-sm shadow-red-100/30">
+            <div className="p-3 bg-red-105 text-red-700 rounded-2xl shrink-0 mt-0.5 animate-pulse">
+              <ShieldAlert size={24} />
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-extrabold text-sm tracking-tight text-slate-800">Hospital Operations Suspended</h3>
+              <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                This facility has been suspended by Arogya Care Super Admins. 
+                {suspensionMeta && (
+                  <span className="block mt-1 font-bold text-red-650">
+                    Suspension Period: from {suspensionMeta.suspended_at ? new Date(suspensionMeta.suspended_at).toLocaleDateString() : 'N/A'} to {suspensionMeta.expires_at ? new Date(suspensionMeta.expires_at).toLocaleDateString() : 'N/A'} ({suspensionMeta.duration_days} days).
+                  </span>
+                )}
+                Patient check-ins, online appointment scheduling, and doctor roster operations are temporarily disabled until the suspension period completes or is lifted by the administration.
+              </p>
+            </div>
           </div>
-          <div className="space-y-1">
-            <h3 className="font-extrabold text-sm tracking-tight text-slate-800">Hospital Verification Awaiting Superadmin Review</h3>
-            <p className="text-xs text-slate-500 font-medium leading-relaxed">
-              Your hospital registration is currently undergoing verification by Arogya Care Super Admins. During this phase, you can start onboarding your staff, pharmacy inventory, and lab testing directory.
-            </p>
+        ) : (
+          <div className="bg-amber-50 border border-amber-200/50 p-6 rounded-3xl text-amber-800 flex items-start gap-4 shadow-sm shadow-amber-100/30">
+            <div className="p-3 bg-amber-100 text-amber-700 rounded-2xl shrink-0 mt-0.5">
+              <Clock size={24} className="animate-pulse" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-extrabold text-sm tracking-tight text-slate-800">Hospital Verification Awaiting Superadmin Review</h3>
+              <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                Your hospital registration is currently undergoing verification by Arogya Care Super Admins. During this phase, you can start onboarding your staff, pharmacy inventory, and lab testing directory.
+              </p>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Setup Cards Grid */}
         <div className="space-y-4">
