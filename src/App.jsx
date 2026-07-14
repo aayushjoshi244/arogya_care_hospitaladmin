@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './hooks/useAuth';
 
 import Layout from './components/layout/Layout';
 import Login from './pages/Login';
+import LoginSSO from './pages/LoginSSO';
 import Signup from './pages/Signup';
 import RegisterHospital from './pages/RegisterHospital';
 import Dashboard from './pages/Dashboard';
@@ -52,6 +53,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/login-sso" element={<LoginSSO />} />
           <Route path="/signup" element={<Signup />} />
           
           <Route path="/register-hospital" element={

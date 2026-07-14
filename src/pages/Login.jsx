@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate, Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { ShieldCheck, Lock, Mail, Loader2, AlertCircle } from 'lucide-react';
+import { supabase } from '../services/supabase';
+import { ShieldCheck, Lock, Mail, Loader2, AlertCircle, ShieldAlert } from 'lucide-react';
 import logo from '../assets/arogya_logo.jpg';
 
 const Login = () => {
-  const { user, login, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   
+  const [role, setRole] = useState('administrator'); // 'administrator', 'doctor', 'lab_technician'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -28,8 +30,78 @@ const Login = () => {
     setError('');
     setSubmitting(true);
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      // 1. Authenticate with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (authError) throw authError;
+
+      const authenticatedUser = authData.user;
+
+      // 2. Query corresponding tables to verify role matches database profile
+      let roleMatched = false;
+      if (role === 'doctor') {
+        const { data } = await supabase.from('doctors').select('id').eq('email', authenticatedUser.email).maybeSingle();
+        if (data) roleMatched = true;
+      } else if (role === 'lab_technician') {
+        const { data } = await supabase.from('lab_technicians').select('id').eq('email', authenticatedUser.email).maybeSingle();
+        if (data) roleMatched = true;
+      } else if (role === 'administrator') {
+        const { data } = await supabase.from('hospitals').select('id').eq('admin_email', authenticatedUser.email).maybeSingle();
+        if (data) roleMatched = true;
+      }
+
+      if (!roleMatched) {
+        await supabase.auth.signOut();
+        throw new Error(`Access Denied: You are not registered under the ${role === 'lab_technician' ? 'Lab Technician' : role === 'doctor' ? 'Doctor' : 'Hospital Administrator'} roster.`);
+      }
+
+      // 3. Navigate or execute SSO redirect
+      const currentHost = window.location.hostname;
+      const isLocal = currentHost === 'localhost' || currentHost === '127.0.0.1';
+      const currentPort = window.location.port;
+
+      let targetRolePort = '5173';
+      if (role === 'doctor') targetRolePort = '5174';
+      else if (role === 'lab_technician') targetRolePort = '5175';
+
+      // Local Port SSO
+      if (isLocal && currentPort === targetRolePort) {
+        navigate('/dashboard');
+        window.location.reload();
+        return;
+      }
+
+      // Production SSO Match
+      if (!isLocal) {
+        const isProductionMatch = 
+          (role === 'doctor' && window.location.hostname.includes('doctor')) ||
+          (role === 'lab_technician' && window.location.hostname.includes('labtechnician')) ||
+          (role === 'administrator' && window.location.hostname.includes('hospitaladmin'));
+
+        if (isProductionMatch) {
+          navigate('/dashboard');
+          window.location.reload();
+          return;
+        }
+      }
+
+      // Generate SSO redirection link
+      let baseUrl = '';
+      if (isLocal) {
+        if (role === 'doctor') baseUrl = `http://localhost:5174`;
+        else if (role === 'lab_technician') baseUrl = `http://localhost:5175`;
+        else baseUrl = `http://localhost:5173`;
+      } else {
+        if (role === 'doctor') baseUrl = `https://arogya-care-doctor.vercel.app`;
+        else if (role === 'lab_technician') baseUrl = `https://arogya-care-labtechnician.vercel.app`;
+        else baseUrl = `https://arogya-care-hospitaladmin.vercel.app`;
+      }
+
+      window.location.href = `${baseUrl}/login-sso?access_token=${authData.session.access_token}&refresh_token=${authData.session.refresh_token}`;
+
     } catch (err) {
       console.error(err);
       setError(err.message || 'Invalid email or password');
@@ -49,16 +121,41 @@ const Login = () => {
         </div>
         
         <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-800 tracking-tight">
-          Hospital Admin Portal
+          Arogya Care Portal
         </h2>
         <p className="mt-2 text-center text-sm text-slate-500 font-medium">
-          Manage clinical staff schedules and live queue operations
+          Unified authentication gateway for clinical staff and administration
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow-xl shadow-slate-100 sm:rounded-3xl border border-slate-100 sm:px-10">
           
+          {/* Segmented Role Selector */}
+          <div className="grid grid-cols-3 gap-2 bg-slate-100 p-1.5 rounded-2xl mb-6">
+            {[
+              { id: 'administrator', label: 'Admin' },
+              { id: 'doctor', label: 'Doctor' },
+              { id: 'lab_technician', label: 'Technician' }
+            ].map((r) => (
+              <button
+                key={r.id}
+                type="button"
+                onClick={() => {
+                  setRole(r.id);
+                  setError('');
+                }}
+                className={`py-2 text-center rounded-xl font-bold text-xs transition-all ${
+                  role === r.id
+                    ? 'bg-white text-slate-800 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+
           {error && (
             <div className="bg-error-bg border border-error/20 p-3 rounded-2xl text-error-text text-xs font-semibold mb-5 flex items-center gap-2.5">
               <AlertCircle size={16} className="shrink-0" />
@@ -70,7 +167,7 @@ const Login = () => {
             {/* Email Address */}
             <div>
               <label htmlFor="email" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-                Admin Email Address
+                {role === 'administrator' ? 'Admin' : role === 'doctor' ? 'Doctor' : 'Technician'} Email Address
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -83,7 +180,7 @@ const Login = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="e.g. apollo_admin@apollo.com"
+                  placeholder={role === 'administrator' ? 'e.g. apollo_admin@apollo.com' : role === 'doctor' ? 'e.g. dr.sharma@arogya.com' : 'e.g. tech.anil@arogya.com'}
                   className="block w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-slate-850 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
               </div>
@@ -121,10 +218,10 @@ const Login = () => {
                 {submitting ? (
                   <>
                     <Loader2 size={16} className="animate-spin" />
-                    Authenticating Session...
+                    Authenticating Role...
                   </>
                 ) : (
-                  'Sign In to Dashboard'
+                  `Sign In as ${role === 'administrator' ? 'Admin' : role === 'doctor' ? 'Doctor' : 'Technician'}`
                 )}
               </button>
             </div>
