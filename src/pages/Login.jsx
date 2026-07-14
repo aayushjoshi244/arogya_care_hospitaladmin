@@ -181,7 +181,7 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={role === 'administrator' ? 'e.g. apollo_admin@apollo.com' : role === 'doctor' ? 'e.g. dr.sharma@arogya.com' : 'e.g. tech.anil@arogya.com'}
-                  className="block w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-slate-850 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  className="block w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-primary transition-all text-xs font-semibold"
                 />
               </div>
             </div>
@@ -203,7 +203,7 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="block w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-slate-850 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  className="block w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-primary transition-all text-xs font-semibold"
                 />
               </div>
             </div>
