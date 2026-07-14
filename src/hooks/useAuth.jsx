@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { supabase } from '../services/supabase';
 import api from '../services/api';
 
@@ -12,6 +12,8 @@ export const AuthProvider = ({ children }) => {
   const [hospitalData, setHospitalData] = useState(null);
   const [isRegistered, setIsRegistered] = useState(false);
   const [hospLoading, setHospLoading] = useState(true);
+  
+  const activeUserIdRef = useRef(null);
 
   const fetchHospitalProfile = async (currentUser) => {
     if (!currentUser) {
@@ -19,8 +21,16 @@ export const AuthProvider = ({ children }) => {
       setHospitalData(null);
       setIsRegistered(false);
       setHospLoading(false);
+      activeUserIdRef.current = null;
       return;
     }
+
+    // Skip redundant background profile fetches on tab focus
+    if (activeUserIdRef.current === currentUser.id) {
+      return;
+    }
+
+    activeUserIdRef.current = currentUser.id;
     setHospLoading(true);
     try {
       const res = await api.get('/profile');
