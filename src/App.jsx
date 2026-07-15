@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import LoginSSO from './pages/LoginSSO';
 import Signup from './pages/Signup';
 import RegisterHospital from './pages/RegisterHospital';
+import RegisterLab from './pages/RegisterLab';
 import Dashboard from './pages/Dashboard';
 import Doctors from './pages/Doctors';
 import Scheduling from './pages/Scheduling';
@@ -35,10 +36,15 @@ const ProtectedRoute = ({ children, requireVerification = true }) => {
 
   if (requireVerification) {
     if (!isRegistered) {
-      return <Navigate to="/register-hospital" replace />;
+      const facilityType = user?.user_metadata?.facility_type || 'HOSPITAL';
+      if (facilityType === 'LAB') {
+        return <Navigate to="/register-lab" replace />;
+      } else {
+        return <Navigate to="/register-hospital" replace />;
+      }
     }
   } else {
-    // Onboarding pages (register-hospital)
+    // Onboarding pages (register-hospital / register-lab)
     if (isRegistered) {
       return <Navigate to="/dashboard" replace />;
     }
@@ -59,6 +65,12 @@ function App() {
           <Route path="/register-hospital" element={
             <ProtectedRoute requireVerification={false}>
               <RegisterHospital />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/register-lab" element={
+            <ProtectedRoute requireVerification={false}>
+              <RegisterLab />
             </ProtectedRoute>
           } />
 

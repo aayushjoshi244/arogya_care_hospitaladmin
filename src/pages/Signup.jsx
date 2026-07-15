@@ -53,7 +53,13 @@ const Signup = () => {
       if (data.session) {
         // Automatically logged in
         setMessage('Registration successful! Redirecting to setup...');
-        setTimeout(() => navigate('/register-hospital'), 1000);
+        setTimeout(() => {
+          if (facilityType === 'LAB') {
+            navigate('/register-lab');
+          } else {
+            navigate('/register-hospital');
+          }
+        }, 1000);
       } else {
         // Email verification required
         setMessage('Check your email inbox for a verification link to activate your account!');
