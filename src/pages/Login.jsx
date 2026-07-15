@@ -98,7 +98,7 @@ const Login = () => {
         else baseUrl = `http://localhost:5173`;
       } else {
         if (role === 'doctor') baseUrl = `https://arogya-care-doctor.vercel.app`;
-        else if (role === 'lab_technician') baseUrl = `https://arogya-care-labletechnician.vercel.app`;
+        else if (role === 'lab_technician') baseUrl = `https://arogya-care-labtechnician.vercel.app`;
         else baseUrl = `https://arogya-care-hospitaladmin.vercel.app`;
       }
 
