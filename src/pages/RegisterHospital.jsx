@@ -165,15 +165,7 @@ const RegisterHospital = () => {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const [facilityType, setFacilityType] = useState(() => {
-    return user?.user_metadata?.facility_type || 'HOSPITAL';
-  });
-
-  useEffect(() => {
-    if (user?.user_metadata?.facility_type) {
-      setFacilityType(user.user_metadata.facility_type);
-    }
-  }, [user]);
+  const facilityType = user?.user_metadata?.facility_type || 'HOSPITAL';
 
   const handleLogout = async () => {
     await logout();
@@ -210,7 +202,9 @@ const RegisterHospital = () => {
   });
 
   useEffect(() => {
-    setForm(prev => ({ ...prev, facility_type: facilityType }));
+    if (facilityType) {
+      setForm(prev => ({ ...prev, facility_type: facilityType }));
+    }
   }, [facilityType]);
 
   useEffect(() => {
@@ -283,29 +277,6 @@ const RegisterHospital = () => {
           <p className="text-slate-400 text-xs font-semibold mt-1">Submit your facility registration and regulatory documents for superadmin verification</p>
         </div>
 
-        {/* Segmented Switcher for Onboarding Facility Type */}
-        <div className="grid grid-cols-2 gap-1.5 bg-slate-200/50 p-1.5 rounded-2xl max-w-sm mx-auto shadow-inner">
-          {[
-            { id: 'HOSPITAL', label: 'Hospital Setup' },
-            { id: 'LAB', label: 'Diagnostic Lab Setup' }
-          ].map((f) => (
-            <button
-              key={f.id}
-              type="button"
-              onClick={() => {
-                setFacilityType(f.id);
-                setForm(prev => ({ ...prev, facility_type: f.id }));
-              }}
-              className={`py-2 px-3.5 text-center rounded-xl font-extrabold text-xs transition-all ${
-                facilityType === f.id
-                  ? 'bg-primary text-white shadow-md'
-                  : 'text-slate-655 hover:text-slate-800 hover:bg-slate-300/20'
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
 
         {error && (
           <div className="bg-error-bg border border-error/20 p-4 rounded-2xl text-error-text text-xs font-semibold flex items-center gap-2.5">
