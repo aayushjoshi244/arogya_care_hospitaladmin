@@ -165,7 +165,15 @@ const RegisterHospital = () => {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const facilityType = user?.user_metadata?.facility_type || 'HOSPITAL';
+  const [facilityType, setFacilityType] = useState(() => {
+    return user?.user_metadata?.facility_type || 'HOSPITAL';
+  });
+
+  useEffect(() => {
+    if (user?.user_metadata?.facility_type) {
+      setFacilityType(user.user_metadata.facility_type);
+    }
+  }, [user]);
 
   const handleLogout = async () => {
     await logout();
@@ -211,14 +219,27 @@ const RegisterHospital = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.registration_number || !form.admin_name || !form.admin_phone || !form.owner_name || !form.owner_phone) {
-      setError('Please fill in all required fields (Name, Registration, Owner, and Admin details)');
-      return;
-    }
+    if (facilityType === 'LAB') {
+      // LAB ONLY REQUIRES: Name, Registration, Admin details, and License/Aadhaar compliance documents
+      if (!form.name || !form.registration_number || !form.admin_name || !form.admin_phone) {
+        setError('Please fill in all required fields (Lab Name, Registration Number, and Administrator details)');
+        return;
+      }
+      if (!form.license_document_url || !form.admin_aadhaar_url) {
+        setError('Please upload the Lab License Certificate and Administrator Aadhaar Card scan.');
+        return;
+      }
+    } else {
+      // HOSPITAL REQUIRES: Name, Registration, Owner, Admin, and all 5 verification documents
+      if (!form.name || !form.registration_number || !form.admin_name || !form.admin_phone || !form.owner_name || !form.owner_phone) {
+        setError('Please fill in all required fields (Hospital Name, Registration, Owner, and Admin details)');
+        return;
+      }
 
-    if (!form.license_document_url || !form.pan_document_url || !form.gst_document_url || !form.admin_aadhaar_url || !form.admin_id_card_url) {
-      setError('Please upload all requested verification compliance documents.');
-      return;
+      if (!form.license_document_url || !form.pan_document_url || !form.gst_document_url || !form.admin_aadhaar_url || !form.admin_id_card_url) {
+        setError('Please upload all requested verification compliance documents.');
+        return;
+      }
     }
 
     setError('');
@@ -260,6 +281,30 @@ const RegisterHospital = () => {
           </div>
           <h2 className="mt-4 text-2xl font-extrabold text-slate-800 tracking-tight">Register {facilityType === 'LAB' ? 'Diagnostic Lab' : 'Hospital'} Profile</h2>
           <p className="text-slate-400 text-xs font-semibold mt-1">Submit your facility registration and regulatory documents for superadmin verification</p>
+        </div>
+
+        {/* Segmented Switcher for Onboarding Facility Type */}
+        <div className="grid grid-cols-2 gap-1.5 bg-slate-200/50 p-1.5 rounded-2xl max-w-sm mx-auto shadow-inner">
+          {[
+            { id: 'HOSPITAL', label: 'Hospital Setup' },
+            { id: 'LAB', label: 'Diagnostic Lab Setup' }
+          ].map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              onClick={() => {
+                setFacilityType(f.id);
+                setForm(prev => ({ ...prev, facility_type: f.id }));
+              }}
+              className={`py-2 px-3.5 text-center rounded-xl font-extrabold text-xs transition-all ${
+                facilityType === f.id
+                  ? 'bg-primary text-white shadow-md'
+                  : 'text-slate-655 hover:text-slate-800 hover:bg-slate-300/20'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
         </div>
 
         {error && (
@@ -384,87 +429,91 @@ const RegisterHospital = () => {
               </div>
             </div>
 
-            {/* Step 3: Hospital Owner details */}
-            <div className="space-y-4 pt-4 border-t border-slate-100">
-              <h3 className="text-sm font-bold text-slate-855 border-b border-slate-100 pb-2 flex items-center gap-2">
-                <UserCheck2 size={16} className="text-primary" />
-                {facilityType === 'LAB' ? 'Diagnostic Lab Owner Details' : 'Hospital Owner Details'}
-              </h3>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-slate-500 font-bold uppercase mb-1">Owner Full Name *</label>
-                  <input
-                    type="text" required
-                    placeholder="e.g. Dr. Rajesh Kumar"
-                    value={form.owner_name}
-                    onChange={(e) => setForm({...form, owner_name: e.target.value})}
-                    className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
-                  />
+            {facilityType !== 'LAB' && (
+              <>
+                {/* Step 3: Hospital Owner details */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-855 border-b border-slate-100 pb-2 flex items-center gap-2">
+                    <UserCheck2 size={16} className="text-primary" />
+                    Hospital Owner Details
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-slate-500 font-bold uppercase mb-1">Owner Full Name *</label>
+                      <input
+                        type="text" required={facilityType !== 'LAB'}
+                        placeholder="e.g. Dr. Rajesh Kumar"
+                        value={form.owner_name}
+                        onChange={(e) => setForm({...form, owner_name: e.target.value})}
+                        className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-500 font-bold uppercase mb-1">Owner Contact Phone *</label>
+                      <input
+                        type="text" required={facilityType !== 'LAB'}
+                        placeholder="e.g. +91 98765 43210"
+                        value={form.owner_phone}
+                        onChange={(e) => setForm({...form, owner_phone: e.target.value})}
+                        className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-500 font-bold uppercase mb-1">Owner Contact Email</label>
+                      <input
+                        type="email"
+                        placeholder="e.g. rajesh@apollo.com"
+                        value={form.owner_email}
+                        onChange={(e) => setForm({...form, owner_email: e.target.value})}
+                        className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-slate-500 font-bold uppercase mb-1">Owner Contact Phone *</label>
-                  <input
-                    type="text" required
-                    placeholder="e.g. +91 98765 43210"
-                    value={form.owner_phone}
-                    onChange={(e) => setForm({...form, owner_phone: e.target.value})}
-                    className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-500 font-bold uppercase mb-1">Owner Contact Email</label>
-                  <input
-                    type="email"
-                    placeholder="e.g. rajesh@apollo.com"
-                    value={form.owner_email}
-                    onChange={(e) => setForm({...form, owner_email: e.target.value})}
-                    className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
-                  />
-                </div>
-              </div>
-            </div>
 
-            {/* Step 4: Contact details & website */}
-            <div className="space-y-4 pt-4 border-t border-slate-100">
-              <h3 className="text-sm font-bold text-slate-855 border-b border-slate-100 pb-2 flex items-center gap-2">
-                <Globe size={16} className="text-primary" />
-                {facilityType === 'LAB' ? 'Diagnostic Lab Contact Details & Website' : 'Hospital Contact Details & Website'}
-              </h3>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-slate-500 font-bold uppercase mb-1">Public Phone Line</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. +91 80 4721 1111"
-                    value={form.phone}
-                    onChange={(e) => setForm({...form, phone: e.target.value})}
-                    className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
-                  />
+                {/* Step 4: Contact details & website */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-855 border-b border-slate-100 pb-2 flex items-center gap-2">
+                    <Globe size={16} className="text-primary" />
+                    Hospital Contact Details & Website
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-slate-500 font-bold uppercase mb-1">Public Phone Line</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. +91 80 4721 1111"
+                        value={form.phone}
+                        onChange={(e) => setForm({...form, phone: e.target.value})}
+                        className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-500 font-bold uppercase mb-1">Public Email Address</label>
+                      <input
+                        type="email"
+                        placeholder="e.g. info@apollo.com"
+                        value={form.email}
+                        onChange={(e) => setForm({...form, email: e.target.value})}
+                        className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-500 font-bold uppercase mb-1">Website URL</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. https://apollo.com"
+                        value={form.website}
+                        onChange={(e) => setForm({...form, website: e.target.value})}
+                        className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-slate-500 font-bold uppercase mb-1">Public Email Address</label>
-                  <input
-                    type="email"
-                    placeholder="e.g. info@apollo.com"
-                    value={form.email}
-                    onChange={(e) => setForm({...form, email: e.target.value})}
-                    className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-500 font-bold uppercase mb-1">Website URL</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. https://apollo.com"
-                    value={form.website}
-                    onChange={(e) => setForm({...form, website: e.target.value})}
-                    className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
-                  />
-                </div>
-              </div>
-            </div>
+              </>
+            )}
 
             {/* Step 5: Admin Details and Compliance IDs */}
             <div className="space-y-4 pt-4 border-t border-slate-100">
@@ -502,11 +551,13 @@ const RegisterHospital = () => {
                   onUploadComplete={(url) => setForm({...form, admin_aadhaar_url: url})}
                 />
                 
-                <FileUploadField 
-                  label={facilityType === 'LAB' ? 'Administrator Lab ID Card' : 'Administrator Hospital ID Card'} 
-                  value={form.admin_id_card_url}
-                  onUploadComplete={(url) => setForm({...form, admin_id_card_url: url})}
-                />
+                {facilityType !== 'LAB' && (
+                  <FileUploadField 
+                    label="Administrator Hospital ID Card" 
+                    value={form.admin_id_card_url}
+                    onUploadComplete={(url) => setForm({...form, admin_id_card_url: url})}
+                  />
+                )}
               </div>
             </div>
 
@@ -519,22 +570,26 @@ const RegisterHospital = () => {
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <FileUploadField 
-                  label="State Medical License Certificate" 
+                  label={facilityType === 'LAB' ? 'State Lab License Certificate' : 'State Medical License Certificate'} 
                   value={form.license_document_url}
                   onUploadComplete={(url) => setForm({...form, license_document_url: url})}
                 />
                 
-                <FileUploadField 
-                  label="Establishment PAN Card Document" 
-                  value={form.pan_document_url}
-                  onUploadComplete={(url) => setForm({...form, pan_document_url: url})}
-                />
-                
-                <FileUploadField 
-                  label="GST Registration Certificate" 
-                  value={form.gst_document_url}
-                  onUploadComplete={(url) => setForm({...form, gst_document_url: url})}
-                />
+                {facilityType !== 'LAB' && (
+                  <>
+                    <FileUploadField 
+                      label="Establishment PAN Card Document" 
+                      value={form.pan_document_url}
+                      onUploadComplete={(url) => setForm({...form, pan_document_url: url})}
+                    />
+                    
+                    <FileUploadField 
+                      label="GST Registration Certificate" 
+                      value={form.gst_document_url}
+                      onUploadComplete={(url) => setForm({...form, gst_document_url: url})}
+                    />
+                  </>
+                )}
               </div>
             </div>
 

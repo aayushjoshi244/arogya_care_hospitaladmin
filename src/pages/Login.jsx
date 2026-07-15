@@ -49,9 +49,10 @@ const Login = () => {
         const { data } = await supabase.from('lab_technicians').select('id').eq('email', authenticatedUser.email).maybeSingle();
         if (data) roleMatched = true;
       } else if (role === 'administrator') {
-        const { data } = await supabase.from('hospitals').select('id').eq('admin_email', authenticatedUser.email).maybeSingle();
-        // Allow if in hospitals DB, or if newly signed-up admin whose profile isn't onboarded yet
-        if (data || authenticatedUser.user_metadata?.role === 'hospital_admin') roleMatched = true;
+        // Exclude accounts registered as doctors or technicians from logging in as admin
+        const { data: docData } = await supabase.from('doctors').select('id').eq('email', authenticatedUser.email).maybeSingle();
+        const { data: techData } = await supabase.from('lab_technicians').select('id').eq('email', authenticatedUser.email).maybeSingle();
+        if (!docData && !techData) roleMatched = true;
       }
 
       if (!roleMatched) {
