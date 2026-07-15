@@ -14,6 +14,7 @@ const Signup = () => {
   const [submitting, setSubmitting] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [termsModalOpen, setTermsModalOpen] = useState(false);
+  const [facilityType, setFacilityType] = useState('HOSPITAL'); // 'HOSPITAL' or 'LAB'
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,7 +42,8 @@ const Signup = () => {
         password,
         options: {
           data: {
-            role: 'hospital_admin' // Set metadata role
+            role: 'hospital_admin', // Set metadata role
+            facility_type: facilityType // Track if it's lab or hospital
           }
         }
       });
@@ -79,16 +81,37 @@ const Signup = () => {
         </div>
         
         <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-800 tracking-tight">
-          Register Hospital Admin
+          Register Facility Admin
         </h2>
         <p className="mt-2 text-center text-sm text-slate-500 font-medium">
-          Create an administrative account to enroll your clinical center
+          Create an administrative account to enroll your hospital or lab center
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow-xl shadow-slate-100 sm:rounded-3xl border border-slate-100 sm:px-10">
           
+          {/* Segmented Switcher for Facility Type */}
+          <div className="grid grid-cols-2 gap-1.5 bg-slate-200/65 p-1 rounded-2xl mb-6">
+            {[
+              { id: 'HOSPITAL', label: 'Hospital' },
+              { id: 'LAB', label: 'Diagnostic Lab' }
+            ].map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setFacilityType(f.id)}
+                className={`py-2 px-3 text-center rounded-xl font-extrabold text-xs transition-all ${
+                  facilityType === f.id
+                    ? 'bg-primary text-white shadow-md scale-[1.02]'
+                    : 'text-slate-650 hover:text-slate-800 hover:bg-slate-300/40'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
           {error && (
             <div className="bg-error-bg border border-error/20 p-3 rounded-2xl text-error-text text-xs font-semibold mb-5 flex items-center gap-2.5">
               <AlertCircle size={16} className="shrink-0" />

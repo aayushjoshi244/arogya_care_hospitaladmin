@@ -31,10 +31,11 @@ const menuItems = [
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const { logout, hospitalStatus } = useAuth();
+  const { logout, hospitalStatus, hospitalData } = useAuth();
   const navigate = useNavigate();
   
   const isApproved = hospitalStatus === 'APPROVED';
+  const isLab = hospitalData?.facility_type === 'LAB';
 
   const handleLogout = async () => {
     try {
@@ -44,6 +45,14 @@ const Sidebar = () => {
       console.error('Logout failed:', err);
     }
   };
+
+  // Filter out Doctor and OPD scheduler views if the tenant is an Independent Lab
+  const filteredMenuItems = menuItems.filter(item => {
+    if (isLab && (item.path === '/doctors' || item.path === '/scheduling' || item.path === '/live-board')) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <div className={`
@@ -60,7 +69,9 @@ const Sidebar = () => {
           {!collapsed && (
             <div className="flex flex-col select-none">
               <span className="font-bold text-slate-800 leading-none text-sm">Arogya Care</span>
-              <span className="text-[9px] text-primary font-bold tracking-wider uppercase mt-1">Hospital Admin</span>
+              <span className="text-[9px] text-primary font-bold tracking-wider uppercase mt-1">
+                {isLab ? 'Lab Admin' : 'Hospital Admin'}
+              </span>
             </div>
           )}
         </div>
@@ -68,7 +79,7 @@ const Sidebar = () => {
 
       {/* Nav Menu */}
       <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
-        {menuItems.map((item) => {
+        {filteredMenuItems.map((item) => {
           const isLocked = item.requiredApproval && !isApproved;
 
           if (isLocked) {

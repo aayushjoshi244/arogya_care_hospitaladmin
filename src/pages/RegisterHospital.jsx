@@ -161,9 +161,11 @@ const indianStates = [
 
 const RegisterHospital = () => {
   const navigate = useNavigate();
-  const { logout, refreshProfile } = useAuth();
+  const { logout, refreshProfile, user } = useAuth();
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  const facilityType = user?.user_metadata?.facility_type || 'HOSPITAL';
 
   const handleLogout = async () => {
     await logout();
@@ -173,7 +175,7 @@ const RegisterHospital = () => {
   // Form payload (persisted in localStorage to prevent loss on page refresh)
   const [form, setForm] = useState(() => {
     const saved = localStorage.getItem('arogya_register_hospital_form');
-    return saved ? JSON.parse(saved) : {
+    const initial = saved ? JSON.parse(saved) : {
       name: '',
       registration_number: '',
       established_year: '',
@@ -196,7 +198,12 @@ const RegisterHospital = () => {
       admin_aadhaar_url: '',
       admin_id_card_url: ''
     };
+    return { ...initial, facility_type: facilityType };
   });
+
+  useEffect(() => {
+    setForm(prev => ({ ...prev, facility_type: facilityType }));
+  }, [facilityType]);
 
   useEffect(() => {
     localStorage.setItem('arogya_register_hospital_form', JSON.stringify(form));
@@ -251,8 +258,8 @@ const RegisterHospital = () => {
           <div className="flex items-center justify-center overflow-hidden rounded-2xl w-16 h-16 border border-slate-200 shadow-md bg-white">
             <img src={logo} alt="Arogya Care Logo" className="w-full h-full object-cover" />
           </div>
-          <h2 className="mt-4 text-2xl font-extrabold text-slate-800 tracking-tight">Register Hospital Profile</h2>
-          <p className="text-slate-400 text-xs font-semibold mt-1">Submit your medical center registration and regulatory documents for superadmin verification</p>
+          <h2 className="mt-4 text-2xl font-extrabold text-slate-800 tracking-tight">Register {facilityType === 'LAB' ? 'Diagnostic Lab' : 'Hospital'} Profile</h2>
+          <p className="text-slate-400 text-xs font-semibold mt-1">Submit your facility registration and regulatory documents for superadmin verification</p>
         </div>
 
         {error && (
@@ -270,18 +277,18 @@ const RegisterHospital = () => {
             <div className="space-y-4">
               <h3 className="text-sm font-bold text-slate-850 border-b border-slate-100 pb-2 flex items-center gap-2">
                 <Building2 size={16} className="text-primary" />
-                Hospital Details
+                {facilityType === 'LAB' ? 'Diagnostic Lab Details' : 'Hospital Details'}
               </h3>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-2">
-                  <label className="block text-slate-500 font-bold uppercase mb-1">Hospital / Clinic Name *</label>
+                  <label className="block text-slate-500 font-bold uppercase mb-1">{facilityType === 'LAB' ? 'Diagnostic Lab Name *' : 'Hospital / Clinic Name *'}</label>
                   <input
                     type="text" required
-                    placeholder="e.g. Apollo Hospital Bannerghatta"
+                    placeholder={facilityType === 'LAB' ? 'e.g. Apollo Diagnostics' : 'e.g. Apollo Hospital Bannerghatta'}
                     value={form.name}
                     onChange={(e) => setForm({...form, name: e.target.value})}
-                    className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-850 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
+                    className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
                   />
                 </div>
                 <div>
@@ -291,17 +298,17 @@ const RegisterHospital = () => {
                     placeholder="e.g. 2012"
                     value={form.established_year}
                     onChange={(e) => setForm({...form, established_year: e.target.value})}
-                    className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-850 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
+                    className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
                   />
                 </div>
                 <div className="sm:col-span-3">
-                  <label className="block text-slate-500 font-bold uppercase mb-1">State License Registration Number *</label>
+                  <label className="block text-slate-500 font-bold uppercase mb-1">{facilityType === 'LAB' ? 'Lab License Registration Number *' : 'State License Registration Number *'}</label>
                   <input
                     type="text" required
                     placeholder="e.g. Reg-12345/KA"
                     value={form.registration_number}
                     onChange={(e) => setForm({...form, registration_number: e.target.value})}
-                    className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-850 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
+                    className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-primary transition-all font-semibold"
                   />
                 </div>
               </div>
@@ -381,7 +388,7 @@ const RegisterHospital = () => {
             <div className="space-y-4 pt-4 border-t border-slate-100">
               <h3 className="text-sm font-bold text-slate-855 border-b border-slate-100 pb-2 flex items-center gap-2">
                 <UserCheck2 size={16} className="text-primary" />
-                Hospital Owner Details
+                {facilityType === 'LAB' ? 'Diagnostic Lab Owner Details' : 'Hospital Owner Details'}
               </h3>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -422,7 +429,7 @@ const RegisterHospital = () => {
             <div className="space-y-4 pt-4 border-t border-slate-100">
               <h3 className="text-sm font-bold text-slate-855 border-b border-slate-100 pb-2 flex items-center gap-2">
                 <Globe size={16} className="text-primary" />
-                Hospital Contact Details & Website
+                {facilityType === 'LAB' ? 'Diagnostic Lab Contact Details & Website' : 'Hospital Contact Details & Website'}
               </h3>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -463,7 +470,7 @@ const RegisterHospital = () => {
             <div className="space-y-4 pt-4 border-t border-slate-100">
               <h3 className="text-sm font-bold text-slate-855 border-b border-slate-100 pb-2 flex items-center gap-2">
                 <UserCheck2 size={16} className="text-primary" />
-                Hospital Administrator Details & Documents
+                {facilityType === 'LAB' ? 'Lab Administrator Details & Documents' : 'Hospital Administrator Details & Documents'}
               </h3>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -496,7 +503,7 @@ const RegisterHospital = () => {
                 />
                 
                 <FileUploadField 
-                  label="Administrator Hospital ID Card" 
+                  label={facilityType === 'LAB' ? 'Administrator Lab ID Card' : 'Administrator Hospital ID Card'} 
                   value={form.admin_id_card_url}
                   onUploadComplete={(url) => setForm({...form, admin_id_card_url: url})}
                 />

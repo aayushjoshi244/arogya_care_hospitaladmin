@@ -231,7 +231,7 @@ const Login = () => {
           <div className="mt-6 border-t border-slate-100 pt-5 text-center text-xs font-semibold text-slate-500">
             <span>Don't have an account? </span>
             <Link to="/signup" className="text-primary hover:underline font-bold">
-              Sign Up / Register Hospital
+              Sign Up / Register Hospital or Lab
             </Link>
           </div>
         </div>
