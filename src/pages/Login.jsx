@@ -50,7 +50,8 @@ const Login = () => {
         if (data) roleMatched = true;
       } else if (role === 'administrator') {
         const { data } = await supabase.from('hospitals').select('id').eq('admin_email', authenticatedUser.email).maybeSingle();
-        if (data) roleMatched = true;
+        // Allow if in hospitals DB, or if newly signed-up admin whose profile isn't onboarded yet
+        if (data || authenticatedUser.user_metadata?.role === 'hospital_admin') roleMatched = true;
       }
 
       if (!roleMatched) {
