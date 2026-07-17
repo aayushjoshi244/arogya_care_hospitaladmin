@@ -335,16 +335,32 @@ const Technicians = () => {
                 </div>
               </div>
 
-              {/* Profile Image URL */}
+              {/* Profile Image */}
               <div>
-                <label className="block text-slate-500 font-bold uppercase mb-1">Profile Photo Image URL</label>
-                <input
-                  type="text"
-                  placeholder="e.g. https://example.com/tech-photo.jpg"
-                  value={onboardForm.profile_image_url}
-                  onChange={(e) => setOnboardForm({...onboardForm, profile_image_url: e.target.value})}
-                  className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none"
-                />
+                <label className="block text-slate-500 font-bold uppercase mb-1">Profile Photo</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setOnboardForm({...onboardForm, profile_image_url: reader.result});
+                      };
+                      reader.readAsDataURL(file);
+                    }}
+                    className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none bg-slate-50 text-xs"
+                  />
+                  {onboardForm.profile_image_url && (
+                    <img 
+                      src={onboardForm.profile_image_url} 
+                      alt="Preview" 
+                      className="w-10 h-10 rounded-full object-cover border border-slate-200"
+                    />
+                  )}
+                </div>
               </div>
 
               {/* Dynamic Tests and Pricing Builder Section */}

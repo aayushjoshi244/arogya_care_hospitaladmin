@@ -229,19 +229,35 @@ const Settings = () => {
                 </div>
               </div>
 
-              {/* Grid 3.5: Facility Image URL */}
+              {/* Grid 3.5: Facility Image */}
               <div className="grid grid-cols-1 gap-4 border-t border-slate-50 pt-4">
                 <div>
-                  <label className="block text-slate-500 font-bold uppercase mb-1 flex items-center gap-1">
-                    Facility Photo Image URL
+                  <label className="block text-slate-500 font-bold uppercase mb-1">
+                    Facility Photo
                   </label>
-                  <input
-                    type="text"
-                    value={formData.image_url}
-                    onChange={(e) => setFormData({...formData, image_url: e.target.value})}
-                    placeholder="e.g. https://example.com/hospital-photo.jpg"
-                    className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-850 focus:outline-none"
-                  />
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setFormData({...formData, image_url: reader.result});
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                      className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-850 focus:outline-none bg-slate-50 text-xs"
+                    />
+                    {formData.image_url && (
+                      <img 
+                        src={formData.image_url} 
+                        alt="Preview" 
+                        className="w-10 h-10 rounded-full object-cover border border-slate-200"
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
 
