@@ -33,7 +33,8 @@ const Settings = () => {
     google_maps_link: '',
     owner_name: '',
     owner_phone: '',
-    owner_email: ''
+    owner_email: '',
+    image_url: ''
   });
 
   useEffect(() => {
@@ -59,7 +60,8 @@ const Settings = () => {
           google_maps_link: res.data.google_maps_link || '',
           owner_name: res.data.owner_name || '',
           owner_phone: res.data.owner_phone || '',
-          owner_email: res.data.owner_email || ''
+          owner_email: res.data.owner_email || '',
+          image_url: res.data.image_url || ''
         });
       }
     } catch (err) {
@@ -222,6 +224,22 @@ const Settings = () => {
                     value={formData.google_maps_link}
                     onChange={(e) => setFormData({...formData, google_maps_link: e.target.value})}
                     placeholder="e.g. https://maps.app.goo.gl/abcdefg12345"
+                    className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-850 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Grid 3.5: Facility Image URL */}
+              <div className="grid grid-cols-1 gap-4 border-t border-slate-50 pt-4">
+                <div>
+                  <label className="block text-slate-500 font-bold uppercase mb-1 flex items-center gap-1">
+                    Facility Photo Image URL
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.image_url}
+                    onChange={(e) => setFormData({...formData, image_url: e.target.value})}
+                    placeholder="e.g. https://example.com/hospital-photo.jpg"
                     className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-850 focus:outline-none"
                   />
                 </div>

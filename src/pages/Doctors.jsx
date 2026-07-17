@@ -70,7 +70,8 @@ const Doctors = () => {
       consultation_fee: 500,
       slot_duration_minutes: 15,
       max_patients_per_day: 20,
-      bio: ''
+      bio: '',
+      profile_image_url: ''
     };
   });
 
@@ -89,7 +90,8 @@ const Doctors = () => {
     consultation_fee: 500,
     slot_duration_minutes: 15,
     max_patients_per_day: 20,
-    bio: ''
+    bio: '',
+    profile_image_url: ''
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -188,7 +190,8 @@ const Doctors = () => {
       consultation_fee: doc.consultation_fee || 500,
       slot_duration_minutes: doc.slot_duration_minutes || 15,
       max_patients_per_day: doc.max_patients_per_day || 20,
-      bio: doc.bio || ''
+      bio: doc.bio || '',
+      profile_image_url: doc.profile_image_url || ''
     });
     setEditModalOpen(true);
   };
@@ -208,7 +211,8 @@ const Doctors = () => {
       consultation_fee: 500,
       slot_duration_minutes: 15,
       max_patients_per_day: 20,
-      bio: ''
+      bio: '',
+      profile_image_url: ''
     });
     localStorage.removeItem('arogya_onboard_doctor_form');
   };
@@ -565,6 +569,18 @@ const Doctors = () => {
                 </div>
               </div>
 
+              {/* Profile Image URL */}
+              <div>
+                <label className="block text-slate-500 font-bold uppercase mb-1">Profile Photo Image URL</label>
+                <input
+                  type="text"
+                  placeholder="e.g. https://example.com/doctor-photo.jpg"
+                  value={onboardForm.profile_image_url}
+                  onChange={(e) => setOnboardForm({...onboardForm, profile_image_url: e.target.value})}
+                  className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none"
+                />
+              </div>
+
               {/* Bio */}
               <div>
                 <label className="block text-slate-500 font-bold uppercase mb-1">Clinician Bio / Professional Profile</label>
@@ -640,6 +656,17 @@ const Doctors = () => {
                   type="number" min="1" required
                   value={editForm.max_patients_per_day}
                   onChange={(e) => setEditForm({...editForm, max_patients_per_day: parseInt(e.target.value)})}
+                  className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-850 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-500 font-bold uppercase mb-1">Profile Photo Image URL</label>
+                <input
+                  type="text"
+                  placeholder="e.g. https://example.com/doctor-photo.jpg"
+                  value={editForm.profile_image_url}
+                  onChange={(e) => setEditForm({...editForm, profile_image_url: e.target.value})}
                   className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-850 focus:outline-none"
                 />
               </div>

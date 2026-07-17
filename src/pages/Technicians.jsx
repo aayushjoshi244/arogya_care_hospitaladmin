@@ -31,6 +31,7 @@ const Technicians = () => {
     email: '',
     phone: '',
     password: '',
+    profile_image_url: '',
     tests: []
   });
 
@@ -204,8 +205,12 @@ const Technicians = () => {
 
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-primary-bg text-primary border border-primary/10 rounded-2xl flex items-center justify-center shrink-0">
-                    <Users size={20} />
+                  <div className="w-12 h-12 bg-primary-bg text-primary border border-primary/10 rounded-2xl overflow-hidden flex items-center justify-center shrink-0">
+                    {tech.profile_image_url ? (
+                      <img src={tech.profile_image_url} alt={tech.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Users size={20} />
+                    )}
                   </div>
                   <div className="pr-12 truncate">
                     <h3 className="font-extrabold text-slate-800 text-xs truncate">{tech.name}</h3>
@@ -328,6 +333,18 @@ const Technicians = () => {
                     className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none"
                   />
                 </div>
+              </div>
+
+              {/* Profile Image URL */}
+              <div>
+                <label className="block text-slate-500 font-bold uppercase mb-1">Profile Photo Image URL</label>
+                <input
+                  type="text"
+                  placeholder="e.g. https://example.com/tech-photo.jpg"
+                  value={onboardForm.profile_image_url}
+                  onChange={(e) => setOnboardForm({...onboardForm, profile_image_url: e.target.value})}
+                  className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none"
+                />
               </div>
 
               {/* Dynamic Tests and Pricing Builder Section */}
