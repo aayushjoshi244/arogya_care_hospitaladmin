@@ -121,6 +121,7 @@ const Technicians = () => {
       email: '',
       phone: '',
       password: '',
+      profile_image_url: '',
       tests: []
     });
     setNewTestName('');
