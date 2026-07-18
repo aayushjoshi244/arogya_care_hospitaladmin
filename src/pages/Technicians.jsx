@@ -16,6 +16,34 @@ import {
   Edit
 } from 'lucide-react';
 
+const uploadToCloudinary = async (file) => {
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+  
+  if (!cloudName || !uploadPreset) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', uploadPreset);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+    method: 'POST',
+    body: formData
+  });
+  
+  if (!res.ok) {
+    throw new Error('Cloudinary upload failed');
+  }
+  const data = await res.json();
+  return data.secure_url;
+};
+
 const Technicians = () => {
   const [technicians, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,6 +83,7 @@ const Technicians = () => {
   const [editTestPrice, setEditTestPrice] = useState('');
   const [editTestCategory, setEditTestCategory] = useState('Pathology');
 
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -417,17 +446,24 @@ const Technicians = () => {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => {
+                    disabled={uploadingImage}
+                    onChange={async (e) => {
                       const file = e.target.files[0];
                       if (!file) return;
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setOnboardForm({...onboardForm, profile_image_url: reader.result});
-                      };
-                      reader.readAsDataURL(file);
+                      setUploadingImage(true);
+                      setError('');
+                      try {
+                        const url = await uploadToCloudinary(file);
+                        setOnboardForm({...onboardForm, profile_image_url: url});
+                      } catch (err) {
+                        setError('Profile photo upload failed: ' + err.message);
+                      } finally {
+                        setUploadingImage(false);
+                      }
                     }}
                     className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none bg-slate-50 text-xs"
                   />
+                  {uploadingImage && <span className="text-[10px] text-primary animate-pulse shrink-0">Uploading...</span>}
                   {onboardForm.profile_image_url && (
                     <img 
                       src={onboardForm.profile_image_url} 
@@ -577,17 +613,24 @@ const Technicians = () => {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => {
+                    disabled={uploadingImage}
+                    onChange={async (e) => {
                       const file = e.target.files[0];
                       if (!file) return;
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setEditForm({...editForm, profile_image_url: reader.result});
-                      };
-                      reader.readAsDataURL(file);
+                      setUploadingImage(true);
+                      setError('');
+                      try {
+                        const url = await uploadToCloudinary(file);
+                        setEditForm({...editForm, profile_image_url: url});
+                      } catch (err) {
+                        setError('Profile photo upload failed: ' + err.message);
+                      } finally {
+                        setUploadingImage(false);
+                      }
                     }}
                     className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-850 focus:outline-none bg-slate-50 text-xs"
                   />
+                  {uploadingImage && <span className="text-[10px] text-primary animate-pulse shrink-0">Uploading...</span>}
                   {editForm.profile_image_url && (
                     <img 
                       src={editForm.profile_image_url} 
@@ -682,7 +725,7 @@ const Technicians = () => {
                 </button>
                 <button
                   type="submit"
-                  disabled={submitting}
+                  disabled={submitting || uploadingImage}
                   className="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold hover-scale transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Saving...' : 'Save'}

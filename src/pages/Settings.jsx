@@ -14,10 +14,39 @@ import {
   UserCheck2
 } from 'lucide-react';
 
+const uploadToCloudinary = async (file) => {
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+  
+  if (!cloudName || !uploadPreset) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', uploadPreset);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+    method: 'POST',
+    body: formData
+  });
+  
+  if (!res.ok) {
+    throw new Error('Cloudinary upload failed');
+  }
+  const data = await res.json();
+  return data.secure_url;
+};
+
 const Settings = () => {
   const [hospital, setHospital] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
@@ -239,17 +268,24 @@ const Settings = () => {
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => {
+                      disabled={uploadingImage}
+                      onChange={async (e) => {
                         const file = e.target.files[0];
                         if (!file) return;
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setFormData({...formData, image_url: reader.result});
-                        };
-                        reader.readAsDataURL(file);
+                        setUploadingImage(true);
+                        setError('');
+                        try {
+                          const url = await uploadToCloudinary(file);
+                          setFormData({...formData, image_url: url});
+                        } catch (err) {
+                          setError('Facility photo upload failed: ' + err.message);
+                        } finally {
+                          setUploadingImage(false);
+                        }
                       }}
                       className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-850 focus:outline-none bg-slate-50 text-xs"
                     />
+                    {uploadingImage && <span className="text-[10px] text-primary animate-pulse shrink-0">Uploading...</span>}
                     {formData.image_url && (
                       <img 
                         src={formData.image_url} 
@@ -304,8 +340,8 @@ const Settings = () => {
               <div className="flex justify-end pt-3 border-t border-slate-50">
                 <button
                   type="submit"
-                  disabled={updating}
-                  className="flex items-center gap-1.5 px-5 py-2.5 bg-primary text-white font-bold rounded-xl text-xs hover-scale shadow-md shadow-primary/10 disabled:opacity-50"
+                  disabled={updating || uploadingImage}
+                  className="flex items-center gap-1.5 px-5 py-2.5 bg-primary text-white font-bold rounded-xl text-xs hover-scale shadow-md shadow-primary/10 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Save size={14} />
                   {updating ? 'Saving Changes...' : 'Save Configuration'}
