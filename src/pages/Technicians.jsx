@@ -12,7 +12,8 @@ import {
   Mail,
   Lock,
   X,
-  Trash2
+  Trash2,
+  Edit
 } from 'lucide-react';
 
 const Technicians = () => {
@@ -38,6 +39,21 @@ const Technicians = () => {
   const [newTestName, setNewTestName] = useState('');
   const [newTestPrice, setNewTestPrice] = useState('');
   const [newTestCategory, setNewTestCategory] = useState('Pathology');
+
+  // Edit Modal Form
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingTech, setEditingTech] = useState(null);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    profile_image_url: '',
+    tests: []
+  });
+
+  const [editTestName, setEditTestName] = useState('');
+  const [editTestPrice, setEditTestPrice] = useState('');
+  const [editTestCategory, setEditTestCategory] = useState('Pathology');
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -113,6 +129,57 @@ const Technicians = () => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const openEditModal = (tech) => {
+    setEditingTech(tech);
+    setEditForm({
+      name: tech.name,
+      email: tech.email,
+      phone: tech.phone,
+      profile_image_url: tech.profile_image_url || '',
+      tests: tech.hospital_lab_tests || []
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError('');
+    setMessage('');
+    try {
+      const res = await api.put(`/technicians/${editingTech.id}`, editForm);
+      if (res.success) {
+        setMessage('Technician profile updated successfully.');
+        setEditModalOpen(false);
+        setEditingTech(null);
+        fetchTechnicians();
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Failed to update technician profile');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleAddTestToEdit = () => {
+    if (!editTestName || !editTestPrice) return;
+    setEditForm(prev => ({
+      ...prev,
+      tests: [...(prev.tests || []), { test_name: editTestName, price: parseFloat(editTestPrice) || 0, category: editTestCategory }]
+    }));
+    setEditTestName('');
+    setEditTestPrice('');
+    setEditTestCategory('Pathology');
+  };
+
+  const handleRemoveTestFromEdit = (indexToRemove) => {
+    setEditForm(prev => ({
+      ...prev,
+      tests: (prev.tests || []).filter((_, idx) => idx !== indexToRemove)
+    }));
   };
 
   const resetOnboardForm = () => {
@@ -256,13 +323,20 @@ const Technicians = () => {
                 )}
 
                 {/* Actions */}
-                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-end">
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                   <button
                     onClick={() => handleDeleteTechnician(tech.id, tech.name)}
                     className="flex items-center gap-1.5 px-3 py-1.5 border border-error/15 text-error hover:bg-error-bg hover:text-error-text rounded-xl text-[10px] font-bold transition-all"
                   >
                     <Trash2 size={12} />
-                    Remove Technician
+                    Remove
+                  </button>
+                  <button
+                    onClick={() => openEditModal(tech)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 text-slate-650 hover:border-primary/20 hover:bg-primary-bg hover:text-primary rounded-xl text-[10px] font-bold transition-all"
+                  >
+                    <Edit size={12} />
+                    Edit Profile
                   </button>
                 </div>
 
@@ -452,6 +526,166 @@ const Technicians = () => {
                   className="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold hover-scale transition-all"
                 >
                   Onboard Technician
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Technician Modal */}
+      {editModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl border border-slate-100 p-6 space-y-4 animate-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-50 pb-3">
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">Edit Lab Specialist</h3>
+                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">{editingTech?.email}</p>
+              </div>
+              <button onClick={() => setEditModalOpen(false)} className="p-1 text-slate-400 hover:bg-slate-50 rounded-lg">
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-slate-500 font-bold uppercase mb-1">Full Name</label>
+                  <input
+                    type="text" required
+                    value={editForm.name}
+                    onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                    className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-500 font-bold uppercase mb-1">Contact Phone</label>
+                  <input
+                    type="text" required
+                    value={editForm.phone}
+                    onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                    className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Profile Image */}
+              <div>
+                <label className="block text-slate-500 font-bold uppercase mb-1">Profile Photo</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setEditForm({...editForm, profile_image_url: reader.result});
+                      };
+                      reader.readAsDataURL(file);
+                    }}
+                    className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-850 focus:outline-none bg-slate-50 text-xs"
+                  />
+                  {editForm.profile_image_url && (
+                    <img 
+                      src={editForm.profile_image_url} 
+                      alt="Preview" 
+                      className="w-10 h-10 rounded-full object-cover border border-slate-200"
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Edit Tests Builder Section */}
+              <div className="border-t border-slate-100 pt-3.5 space-y-3">
+                <p className="text-slate-500 font-bold uppercase text-[10px] tracking-wide">Assign & Manage Diagnostics Tests</p>
+                
+                <div className="flex flex-wrap sm:flex-nowrap items-end gap-3 bg-slate-50/50 p-3 rounded-2xl border border-slate-100">
+                  <div className="flex-1">
+                    <label className="block text-slate-400 font-semibold mb-0.5 text-[10px]">Test Name</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Complete Blood Count (CBC)"
+                      value={editTestName}
+                      onChange={(e) => setEditTestName(e.target.value)}
+                      className="block w-full border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 focus:outline-none text-[11px]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 font-semibold mb-0.5 text-[10px]">Category</label>
+                    <select
+                      value={editTestCategory}
+                      onChange={(e) => setEditTestCategory(e.target.value)}
+                      className="block w-full border border-slate-200 bg-white rounded-xl px-3 py-1.5 text-slate-800 focus:outline-none text-[11px]"
+                    >
+                      <option value="Pathology">Pathology</option>
+                      <option value="Radiology">Radiology</option>
+                      <option value="Cardiology">Cardiology</option>
+                      <option value="Neurology">Neurology</option>
+                      <option value="Immunology">Immunology</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div className="w-24">
+                    <label className="block text-slate-400 font-semibold mb-0.5 text-[10px]">Price (₹)</label>
+                    <input
+                      type="number"
+                      placeholder="350"
+                      value={editTestPrice}
+                      onChange={(e) => setEditTestPrice(e.target.value)}
+                      className="block w-full border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 focus:outline-none text-[11px]"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddTestToEdit}
+                    className="px-3.5 py-1.5 bg-primary text-white font-extrabold rounded-xl hover:bg-primary-hover hover-scale text-[11px]"
+                  >
+                    + Add
+                  </button>
+                </div>
+
+                {/* List of Added Tests */}
+                {editForm.tests && editForm.tests.length > 0 && (
+                  <div className="border border-slate-100 rounded-2xl p-2.5 max-h-36 overflow-y-auto space-y-1.5 bg-slate-50/50">
+                    {editForm.tests.map((test, index) => (
+                      <div key={index} className="flex items-center justify-between bg-white border border-slate-200/60 px-3 py-1.5 rounded-xl text-[10px]">
+                        <div>
+                          <span className="font-semibold text-slate-700">{test.test_name}</span>
+                          <span className="ml-2 text-slate-400 font-medium">({test.category})</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="font-extrabold text-primary">₹{test.price}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTestFromEdit(index)}
+                            className="text-error hover:text-error-text font-bold text-[10px] hover:underline"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3 border-t border-slate-50">
+                <button
+                  type="button"
+                  onClick={() => setEditModalOpen(false)}
+                  className="px-4 py-2 border border-slate-200 text-slate-500 rounded-xl font-semibold hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold hover-scale transition-all"
+                >
+                  Save Changes
                 </button>
               </div>
             </form>

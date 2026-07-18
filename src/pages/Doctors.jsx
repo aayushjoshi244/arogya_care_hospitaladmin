@@ -410,7 +410,7 @@ const Doctors = () => {
                   className="flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 text-slate-600 hover:border-primary/20 hover:bg-primary-bg hover:text-primary rounded-xl text-xs font-bold transition-all"
                 >
                   <Edit2 size={12} />
-                  Configure Slots
+                  Edit Profile & Slots
                 </button>
               </div>
             </div>
@@ -634,11 +634,11 @@ const Doctors = () => {
       {/* Edit Clinician Configuration Modal */}
       {editModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl border border-slate-100 p-6 space-y-4 animate-in zoom-in duration-200">
+          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl border border-slate-100 p-6 space-y-4 animate-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-50 pb-3">
               <div>
-                <h3 className="text-lg font-bold text-slate-800">Configure Clinical Slots</h3>
-                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">{editingDoc?.name}</p>
+                <h3 className="text-lg font-bold text-slate-800">Edit Doctor Profile & Slots</h3>
+                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">{editingDoc?.email}</p>
               </div>
               <button onClick={() => setEditModalOpen(false)} className="p-1 text-slate-400 hover:bg-slate-50 rounded-lg">
                 <X size={18} />
@@ -646,6 +646,26 @@ const Doctors = () => {
             </div>
 
             <form onSubmit={handleEditSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-slate-500 font-bold uppercase mb-1">Full Name</label>
+                <input
+                  type="text" required
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                  className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-850 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-500 font-bold uppercase mb-1">Contact Phone</label>
+                <input
+                  type="text" required
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                  className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-850 focus:outline-none"
+                />
+              </div>
+
               <div>
                 <label className="block text-slate-500 font-bold uppercase mb-1">Consultation Fee (₹)</label>
                 <input
