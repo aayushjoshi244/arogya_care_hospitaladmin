@@ -747,7 +747,7 @@ const Doctors = () => {
                   disabled={submitting}
                   className="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold hover-scale transition-all"
                 >
-                  Save Slots
+                  Save
                 </button>
               </div>
             </form>
