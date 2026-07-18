@@ -621,9 +621,9 @@ const Doctors = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold hover-scale transition-all"
+                  className="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold hover-scale transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Onboard Practitioner
+                  {submitting ? 'Onboarding...' : 'Onboard Practitioner'}
                 </button>
               </div>
             </form>
@@ -745,9 +745,9 @@ const Doctors = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold hover-scale transition-all"
+                  className="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold hover-scale transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Save
+                  {submitting ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </form>

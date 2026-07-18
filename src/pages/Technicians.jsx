@@ -523,9 +523,9 @@ const Technicians = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold hover-scale transition-all"
+                  className="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold hover-scale transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Onboard Technician
+                  {submitting ? 'Onboarding...' : 'Onboard Technician'}
                 </button>
               </div>
             </form>
@@ -683,9 +683,9 @@ const Technicians = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold hover-scale transition-all"
+                  className="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold hover-scale transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Save Changes
+                  {submitting ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </form>
