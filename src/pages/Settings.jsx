@@ -259,42 +259,26 @@ const Settings = () => {
               </div>
 
               {/* Grid 3.5: Facility Image */}
-              <div className="grid grid-cols-1 gap-4 border-t border-slate-50 pt-4">
-                <div>
-                  <label className="block text-slate-500 font-bold uppercase mb-1">
-                    Facility Photo
-                  </label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      disabled={uploadingImage}
-                      onChange={async (e) => {
-                        const file = e.target.files[0];
-                        if (!file) return;
-                        setUploadingImage(true);
-                        setError('');
-                        try {
-                          const url = await uploadToCloudinary(file);
-                          setFormData({...formData, image_url: url});
-                        } catch (err) {
-                          setError('Facility photo upload failed: ' + err.message);
-                        } finally {
-                          setUploadingImage(false);
-                        }
-                      }}
-                      className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-850 focus:outline-none bg-slate-50 text-xs"
-                    />
-                    {uploadingImage && <span className="text-[10px] text-primary animate-pulse shrink-0">Uploading...</span>}
-                    {formData.image_url && (
-                      <img 
-                        src={formData.image_url} 
-                        alt="Preview" 
-                        className="w-10 h-10 rounded-full object-cover border border-slate-200"
-                      />
-                    )}
-                  </div>
-                </div>
+              <div className="border-t border-slate-50 pt-4">
+                <ImageUploadField 
+                  label="Facility Photo" 
+                  value={formData.image_url}
+                  uploading={uploadingImage}
+                  onChange={async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    setUploadingImage(true);
+                    setError('');
+                    try {
+                      const url = await uploadToCloudinary(file);
+                      setFormData({...formData, image_url: url});
+                    } catch (err) {
+                      setError('Facility photo upload failed: ' + err.message);
+                    } finally {
+                      setUploadingImage(false);
+                    }
+                  }}
+                />
               </div>
 
               {/* Grid 4: Owner details */}
