@@ -149,7 +149,8 @@ const RegisterLab = () => {
       admin_name: '',
       admin_phone: '',
       license_document_url: '',
-      admin_aadhaar_url: ''
+      admin_aadhaar_url: '',
+      image_url: ''
     };
     return { ...initial, facility_type: 'LAB' };
   });
@@ -386,13 +387,44 @@ const RegisterLab = () => {
                 Regulatory Compliance Certificates (Cloudinary Uploads)
               </h3>
               
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FileUploadField 
                   label="State Lab License Certificate" 
                   value={form.license_document_url}
                   onUploadComplete={(url) => setForm({...form, license_document_url: url})}
                 />
               </div>
+
+              {/* Lab Photo Upload */}
+              <div className="grid grid-cols-1 gap-4 border-t border-slate-50 pt-3">
+                <div>
+                  <label className="block text-slate-550 font-bold uppercase mb-1">Diagnostic Lab Photo</label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setForm({...form, image_url: reader.result});
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                      className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none bg-white text-xs file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-purple-600/10 file:text-purple-650 file:hover:bg-purple-600/20 file:cursor-pointer transition-colors"
+                    />
+                    {form.image_url && (
+                      <img 
+                        src={form.image_url} 
+                        alt="Preview" 
+                        className="w-10 h-10 rounded-full object-cover border border-slate-200"
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+
             </div>
 
             {/* Submit button */}

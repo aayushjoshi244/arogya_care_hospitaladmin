@@ -158,7 +158,8 @@ const RegisterHospital = () => {
       pan_document_url: '',
       gst_document_url: '',
       admin_aadhaar_url: '',
-      admin_id_card_url: ''
+      admin_id_card_url: '',
+      image_url: ''
     };
     return { ...initial, facility_type: 'HOSPITAL' };
   });
@@ -431,6 +432,37 @@ const RegisterHospital = () => {
                   />
                 </div>
               </div>
+
+              {/* Hospital Photo Upload */}
+              <div className="grid grid-cols-1 gap-4 border-t border-slate-50 pt-3">
+                <div>
+                  <label className="block text-slate-550 font-bold uppercase mb-1">Hospital Profile Photo</label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setForm({...form, image_url: reader.result});
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                      className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-800 focus:outline-none bg-white text-xs file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-primary/10 file:text-primary file:hover:bg-primary/20 file:cursor-pointer transition-colors"
+                    />
+                    {form.image_url && (
+                      <img 
+                        src={form.image_url} 
+                        alt="Preview" 
+                        className="w-10 h-10 rounded-full object-cover border border-slate-200"
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+
             </div>
 
             {/* Step 5: Admin Details and Compliance IDs */}
