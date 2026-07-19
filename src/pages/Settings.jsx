@@ -42,6 +42,44 @@ const uploadToCloudinary = async (file) => {
   return data.secure_url;
 };
 
+const ImageUploadField = ({ label, value, onChange, uploading, error }) => {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="block text-slate-500 font-bold uppercase mb-1">{label}</label>
+      <div className="flex flex-col gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100/50 transition-colors">
+        <input 
+          type="file" 
+          accept="image/*"
+          disabled={uploading}
+          onChange={onChange}
+          className="text-xs font-semibold text-slate-550 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-primary/10 file:text-primary file:hover:bg-primary/20 file:cursor-pointer transition-colors"
+        />
+        {uploading && (
+          <div className="flex items-center gap-2">
+            <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+              <div className="bg-primary h-1.5 animate-pulse" style={{ width: '60%' }}></div>
+            </div>
+            <span className="text-[10px] text-primary font-bold shrink-0">Uploading...</span>
+          </div>
+        )}
+        {!uploading && value && (
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 text-success-text text-[10px] font-bold bg-success-bg/40 px-2 py-0.5 rounded-md">
+              <CheckCircle2 size={12} className="shrink-0" />
+              <span>Uploaded to Cloudinary</span>
+            </div>
+            <img 
+              src={value} 
+              alt="Preview" 
+              className="w-10 h-10 rounded-full object-cover border border-slate-200"
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const Settings = () => {
   const [hospital, setHospital] = useState(null);
   const [loading, setLoading] = useState(true);
