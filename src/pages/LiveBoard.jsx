@@ -382,6 +382,8 @@ const LiveBoard = () => {
             No patient check-in reservations logged for today.
           </div>
         )}
+      </div>
+
       {/* Hospital Desk QR Modal */}
       {showQrModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
