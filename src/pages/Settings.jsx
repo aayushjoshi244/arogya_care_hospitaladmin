@@ -11,7 +11,9 @@ import {
   AlertCircle,
   Compass,
   FileText,
-  UserCheck2
+  UserCheck2,
+  Navigation,
+  LocateFixed
 } from 'lucide-react';
 
 const uploadToCloudinary = async (file) => {
@@ -85,6 +87,7 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [syncingCoords, setSyncingCoords] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
@@ -155,6 +158,23 @@ const Settings = () => {
       setError(err.message || 'Failed to update profile details');
     } finally {
       setUpdating(false);
+    }
+  };
+
+  const handleSyncCoords = async () => {
+    setSyncingCoords(true);
+    setError('');
+    setMessage('');
+    try {
+      const res = await api.post('/profile/backfill-coords');
+      if (res.success) {
+        setMessage(`📍 Location synced successfully! Coordinates extracted from your Google Maps link and saved to the database. The Nearby feature in the patient app will now work correctly.`);
+        setHospital(res.data);
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to extract coordinates from the Google Maps link. Make sure the link is a valid Google Maps URL.');
+    } finally {
+      setSyncingCoords(false);
     }
   };
 
@@ -293,6 +313,31 @@ const Settings = () => {
                     placeholder="e.g. https://maps.app.goo.gl/abcdefg12345"
                     className="block w-full border border-slate-200 rounded-xl px-4 py-2 text-slate-850 focus:outline-none"
                   />
+                  {/* Sync Location Button */}
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center gap-1.5">
+                      {hospital?.latitude && hospital?.longitude ? (
+                        <span className="flex items-center gap-1 text-[10px] text-success-text font-bold bg-success-bg/50 px-2 py-1 rounded-lg">
+                          <LocateFixed size={10} />
+                          Synced: {parseFloat(hospital.latitude).toFixed(4)}, {parseFloat(hospital.longitude).toFixed(4)}
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-[10px] text-amber-600 font-bold bg-amber-50 px-2 py-1 rounded-lg">
+                          <MapPin size={10} />
+                          No coordinates — Nearby won't work
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleSyncCoords}
+                      disabled={syncingCoords || !formData.google_maps_link}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary font-bold rounded-lg text-[10px] hover:bg-primary/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Navigation size={11} />
+                      {syncingCoords ? 'Syncing...' : 'Sync Location from Maps Link'}
+                    </button>
+                  </div>
                 </div>
               </div>
 
