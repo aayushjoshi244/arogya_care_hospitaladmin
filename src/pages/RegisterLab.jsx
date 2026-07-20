@@ -14,7 +14,8 @@ import {
   ArrowRight,
   Compass,
   FileCheck2,
-  LogOut
+  LogOut,
+  LocateFixed
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import logo from '../assets/arogya_logo.jpg';
@@ -338,6 +339,18 @@ const RegisterLab = () => {
                     onChange={(e) => setForm({...form, google_maps_link: e.target.value})}
                     className="block w-full border border-slate-300 rounded-xl px-4 py-2.5 text-slate-850 placeholder-slate-400 focus:outline-none focus:border-purple-500 transition-all font-semibold"
                   />
+                  {/* Auto-sync indicator */}
+                  {form.google_maps_link && /google\.com\/maps|goo\.gl|maps\.app/i.test(form.google_maps_link) ? (
+                    <div className="flex items-center gap-2 mt-2 text-[11px] font-bold text-purple-700 bg-purple-50 border border-purple-200 rounded-lg px-3 py-2">
+                      <LocateFixed size={13} className="shrink-0 text-purple-600" />
+                      <span>Google Maps link detected — coordinates will be auto-extracted and saved when you submit</span>
+                    </div>
+                  ) : form.google_maps_link ? (
+                    <div className="flex items-center gap-2 mt-2 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                      <AlertCircle size={13} className="shrink-0" />
+                      <span>Doesn't look like a Google Maps URL. Please paste a link from Google Maps (e.g. maps.app.goo.gl/...)</span>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </div>
