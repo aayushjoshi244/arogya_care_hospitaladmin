@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
+import { QRCodeSVG } from 'qrcode.react';
 import { 
   Activity, 
   Search, 
@@ -13,16 +14,21 @@ import {
   RefreshCw,
   Phone,
   DollarSign,
-  UserX
+  UserX,
+  QrCode,
+  Printer,
+  X
 } from 'lucide-react';
 
 const LiveBoard = () => {
   const [appointments, setAppointments] = useState([]);
   const [doctorQueues, setDoctorQueues] = useState([]);
+  const [hospitalInfo, setHospitalInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [showQrModal, setShowQrModal] = useState(false);
 
   // Filters
   const [doctorFilter, setDoctorFilter] = useState('');
@@ -42,12 +48,61 @@ const LiveBoard = () => {
         setAppointments(res.data?.appointments || []);
         setDoctorQueues(res.data?.doctorQueues || []);
       }
+      const profRes = await api.get('/profile');
+      if (profRes.success) {
+        setHospitalInfo(profRes.data);
+      }
     } catch (err) {
       console.error(err);
       setError('Failed to fetch live queue logs from server');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePrintQr = () => {
+    if (!hospitalInfo?.hospital_id) return;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${hospitalInfo.name} - Desk Check-in QR</title>
+          <style>
+            body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 40px; margin: 0; background: #f8fafc; color: #0f172a; }
+            .card { background: white; border-radius: 24px; padding: 40px; max-width: 400px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 2px solid #e2e8f0; }
+            h1 { margin: 0 0 8px 0; font-size: 24px; color: #0f172a; }
+            p { margin: 0 0 24px 0; font-size: 13px; color: #64748b; }
+            .qr-box { background: #f1f5f9; padding: 20px; border-radius: 20px; display: inline-block; margin-bottom: 24px; }
+            .badge { background: #0A6E6E; color: white; padding: 6px 16px; border-radius: 20px; font-weight: bold; font-size: 12px; display: inline-block; margin-bottom: 16px; }
+            .id-text { font-size: 12px; font-weight: bold; color: #0A6E6E; letter-spacing: 1px; }
+            .footer { font-size: 11px; color: #94a3b8; margin-top: 16px; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <div class="badge">AROGYA CARE OPD CHECK-IN</div>
+            <h1>${hospitalInfo.name}</h1>
+            <p>${hospitalInfo.address || ''}, ${hospitalInfo.city || ''}</p>
+            <div class="qr-box">
+              <svg id="qr"></svg>
+            </div>
+            <div class="id-text">FACILITY ID: ${hospitalInfo.hospital_id}</div>
+            <div class="footer">Scan with Arogya Patient App to mark OPD check-in</div>
+          </div>
+          <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+          <script>
+            QRCode.toString('${hospitalInfo.hospital_id}', { type: 'svg', width: 220, margin: 1 }, function (err, svg) {
+              if (!err) {
+                document.getElementById('qr').outerHTML = svg;
+                setTimeout(() => window.print(), 300);
+              }
+            });
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   const handleUpdateStatus = async (appId, status) => {
@@ -129,14 +184,24 @@ const LiveBoard = () => {
           <p className="text-slate-400 text-sm font-medium mt-0.5">Real-time tracker of today's check-ins, active doctor queue lengths, and daily clinical rosters</p>
         </div>
         
-        <button
-          onClick={fetchLiveQueue}
-          disabled={loading}
-          className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 hover:border-primary/20 hover:bg-primary-bg hover:text-primary text-slate-650 font-bold rounded-xl transition-all text-xs shrink-0 bg-white"
-        >
-          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-          Refresh Board
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => setShowQrModal(true)}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white font-bold rounded-xl hover-scale shadow-sm shadow-primary/10 transition-all text-xs"
+          >
+            <QrCode size={14} />
+            Show Desk QR
+          </button>
+
+          <button
+            onClick={fetchLiveQueue}
+            disabled={loading}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 hover:border-primary/20 hover:bg-primary-bg hover:text-primary text-slate-650 font-bold rounded-xl transition-all text-xs bg-white"
+          >
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            Refresh Board
+          </button>
+        </div>
       </div>
 
       {/* Alerts */}
@@ -317,7 +382,64 @@ const LiveBoard = () => {
             No patient check-in reservations logged for today.
           </div>
         )}
-      </div>
+      {/* Hospital Desk QR Modal */}
+      {showQrModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white border border-slate-100 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4 relative">
+            <button
+              onClick={() => setShowQrModal(false)}
+              className="absolute right-4 top-4 p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex items-center justify-center gap-2 border-b border-slate-50 pb-3">
+              <QrCode size={20} className="text-primary" />
+              <h3 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider">Hospital Desk Check-in QR</h3>
+            </div>
+
+            <div className="bg-slate-50 border border-slate-150 p-4 rounded-2xl inline-block mx-auto shadow-inner">
+              {hospitalInfo?.hospital_id ? (
+                <QRCodeSVG
+                  value={hospitalInfo.hospital_id}
+                  size={180}
+                  level="H"
+                  includeMargin={false}
+                />
+              ) : (
+                <div className="w-44 h-44 flex items-center justify-center text-slate-400 text-xs">Loading QR...</div>
+              )}
+            </div>
+
+            <div>
+              <p className="text-sm font-extrabold text-slate-800 tracking-wide">{hospitalInfo?.hospital_id}</p>
+              <p className="text-xs font-bold text-slate-600 mt-0.5">{hospitalInfo?.name}</p>
+              <p className="text-[10px] text-slate-400 font-medium mt-1.5 leading-relaxed">
+                Display this QR code at your reception desk. Patients scan this QR code using the Arogya Patient App to mark their OPD check-in.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 pt-2 border-t border-slate-50">
+              <button
+                type="button"
+                onClick={handlePrintQr}
+                disabled={!hospitalInfo?.hospital_id}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-primary text-white font-bold rounded-xl text-xs hover-scale shadow-sm shadow-primary/10 transition-all disabled:opacity-50"
+              >
+                <Printer size={14} />
+                Print Desk Standee
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowQrModal(false)}
+                className="px-4 py-2.5 border border-slate-200 text-slate-655 font-bold rounded-xl text-xs hover:bg-slate-50 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
+import { QRCodeSVG } from 'qrcode.react';
 import { 
   Building2, 
   MapPin, 
@@ -13,7 +14,9 @@ import {
   FileText,
   UserCheck2,
   Navigation,
-  LocateFixed
+  LocateFixed,
+  QrCode,
+  Printer
 } from 'lucide-react';
 
 const uploadToCloudinary = async (file) => {
@@ -176,6 +179,51 @@ const Settings = () => {
     } finally {
       setSyncingCoords(false);
     }
+  };
+
+  const handlePrintQr = () => {
+    if (!hospital?.hospital_id) return;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${hospital.name} - Desk Check-in QR</title>
+          <style>
+            body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 40px; margin: 0; background: #f8fafc; color: #0f172a; }
+            .card { background: white; border-radius: 24px; padding: 40px; max-width: 400px; margin: 0 auto; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 2px solid #e2e8f0; }
+            h1 { margin: 0 0 8px 0; font-size: 24px; color: #0f172a; }
+            p { margin: 0 0 24px 0; font-size: 13px; color: #64748b; }
+            .qr-box { background: #f1f5f9; padding: 20px; border-radius: 20px; display: inline-block; margin-bottom: 24px; }
+            .badge { background: #0A6E6E; color: white; padding: 6px 16px; border-radius: 20px; font-weight: bold; font-size: 12px; display: inline-block; margin-bottom: 16px; }
+            .id-text { font-size: 12px; font-weight: bold; color: #0A6E6E; letter-spacing: 1px; }
+            .footer { font-size: 11px; color: #94a3b8; margin-top: 16px; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <div class="badge">AROGYA CARE OPD CHECK-IN</div>
+            <h1>${hospital.name}</h1>
+            <p>${hospital.address || ''}, ${hospital.city || ''}</p>
+            <div class="qr-box">
+              <svg id="qr"></svg>
+            </div>
+            <div class="id-text">FACILITY ID: ${hospital.hospital_id}</div>
+            <div class="footer">Scan with Arogya Patient App to mark OPD check-in</div>
+          </div>
+          <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+          <script>
+            QRCode.toString('${hospital.hospital_id}', { type: 'svg', width: 220, margin: 1 }, function (err, svg) {
+              if (!err) {
+                document.getElementById('qr').outerHTML = svg;
+                setTimeout(() => window.print(), 300);
+              }
+            });
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
   };
 
   if (loading) {
@@ -418,8 +466,51 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* Right Info: Read-only verification details */}
+        {/* Right Info: Read-only verification details & QR Standee */}
         <div className="space-y-6">
+          {/* Hospital Desk OPD Check-in QR Card */}
+          <div className="bg-white border border-slate-100 p-6 rounded-3xl shadow-sm shadow-slate-100/50 space-y-4 text-center">
+            <div className="flex items-center justify-between border-b border-slate-50 pb-3">
+              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <QrCode size={16} className="text-primary" />
+                Hospital Desk OPD QR
+              </h3>
+              <span className="text-[10px] font-extrabold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                Self Check-in
+              </span>
+            </div>
+
+            <div className="bg-slate-50 border border-slate-150 p-4 rounded-2xl inline-block mx-auto shadow-inner">
+              {hospital?.hospital_id ? (
+                <QRCodeSVG
+                  value={hospital.hospital_id}
+                  size={160}
+                  level="H"
+                  includeMargin={false}
+                />
+              ) : (
+                <div className="w-40 h-40 flex items-center justify-center text-slate-400 text-xs">Loading QR...</div>
+              )}
+            </div>
+
+            <div>
+              <p className="text-xs font-extrabold text-slate-800 tracking-wide">{hospital?.hospital_id}</p>
+              <p className="text-[10px] text-slate-400 font-medium mt-1 leading-relaxed">
+                Display this QR code at your reception desk. Patients scan this QR code with the Arogya Patient App to mark their OPD check-in.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handlePrintQr}
+              disabled={!hospital?.hospital_id}
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-white font-bold rounded-xl text-xs hover-scale shadow-sm shadow-primary/10 transition-all disabled:opacity-50"
+            >
+              <Printer size={14} />
+              Print Desk QR Standee
+            </button>
+          </div>
+
           {/* Status */}
           <div className="bg-white border border-slate-100 p-6 rounded-3xl shadow-sm shadow-slate-100/50 space-y-4">
             <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Verification Scope</h3>
