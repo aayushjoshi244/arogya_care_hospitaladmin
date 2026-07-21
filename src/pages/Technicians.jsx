@@ -83,27 +83,114 @@ const ImageUploadField = ({ label, value, onChange, uploading, error }) => {
 };
 
 const STANDARD_LAB_TESTS = [
+  // Hematology & Blood Routine
   { name: 'Complete Blood Count (CBC)', category: 'Pathology' },
-  { name: 'Dengue NS1 Antigen & IgM/IgG', category: 'Immunology' },
-  { name: 'Typhoid Widal Test', category: 'Pathology' },
-  { name: 'Urine Routine & Microscopy', category: 'Pathology' },
+  { name: 'Hemoglobin (Hb) Test', category: 'Pathology' },
+  { name: 'Blood Grouping & Rh Factor', category: 'Pathology' },
+  { name: 'Peripheral Blood Smear (PBS)', category: 'Pathology' },
+  { name: 'Erythrocyte Sedimentation Rate (ESR)', category: 'Pathology' },
+  { name: 'Reticulocyte Count', category: 'Pathology' },
+  { name: 'Prothrombin Time (PT/INR)', category: 'Pathology' },
+  { name: 'Activated Partial Thromboplastin Time (APTT)', category: 'Pathology' },
+  { name: 'D-Dimer Test', category: 'Pathology' },
+  { name: 'Ferritin Level', category: 'Pathology' },
+  { name: 'Serum Iron & TIBC', category: 'Pathology' },
+
+  // Diabetes & Metabolic
   { name: 'Blood Sugar Fasting (FBS)', category: 'Pathology' },
   { name: 'Blood Sugar Post Prandial (PPBS)', category: 'Pathology' },
   { name: 'Random Blood Sugar (RBS)', category: 'Pathology' },
   { name: 'HbA1c (Glycated Hemoglobin)', category: 'Pathology' },
+  { name: 'Oral Glucose Tolerance Test (OGTT)', category: 'Pathology' },
+  { name: 'Serum Insulin (Fasting)', category: 'Pathology' },
+
+  // Liver & Kidney Function
   { name: 'Liver Function Test (LFT)', category: 'Pathology' },
   { name: 'Kidney Function Test (KFT / RFT)', category: 'Pathology' },
-  { name: 'Lipid Profile (Cholesterol)', category: 'Pathology' },
-  { name: 'Thyroid Profile (T3, T4, TSH)', category: 'Pathology' },
-  { name: 'Chest X-Ray PA View', category: 'Radiology' },
-  { name: 'ECG (12 Lead Electrocardiogram)', category: 'Cardiology' },
-  { name: 'Ultrasound Abdomen & Pelvis (USG)', category: 'Radiology' },
-  { name: 'Vitamin D3 Level', category: 'Pathology' },
-  { name: 'Vitamin B12 Level', category: 'Pathology' },
-  { name: 'CRP (C-Reactive Protein)', category: 'Immunology' },
-  { name: 'Erythrocyte Sedimentation Rate (ESR)', category: 'Pathology' },
   { name: 'Serum Creatinine & Blood Urea', category: 'Pathology' },
-  { name: 'Serum Electrolytes (Na+, K+, Cl-)', category: 'Pathology' }
+  { name: 'Serum Uric Acid', category: 'Pathology' },
+  { name: 'Serum Electrolytes (Na+, K+, Cl-)', category: 'Pathology' },
+  { name: 'Serum Amylase & Lipase', category: 'Pathology' },
+
+  // Cardiac & Inflammatory Markers
+  { name: 'Lipid Profile (Cholesterol)', category: 'Pathology' },
+  { name: 'Troponin I (Quantitative)', category: 'Cardiology' },
+  { name: 'CPK-MB (Cardiac Marker)', category: 'Cardiology' },
+  { name: 'CRP (C-Reactive Protein)', category: 'Immunology' },
+  { name: 'High-Sensitivity CRP (hs-CRP)', category: 'Immunology' },
+  { name: 'Procalcitonin Level', category: 'Immunology' },
+
+  // Infectious Diseases & Serology
+  { name: 'Dengue NS1 Antigen & IgM/IgG', category: 'Immunology' },
+  { name: 'Typhoid Widal Test', category: 'Pathology' },
+  { name: 'Typhidot IgM Test', category: 'Immunology' },
+  { name: 'Malaria Antigen (RDT)', category: 'Pathology' },
+  { name: 'Scrub Typhus IgM', category: 'Immunology' },
+  { name: 'Chikungunya IgM', category: 'Immunology' },
+  { name: 'Hepatitis B Surface Antigen (HBsAg)', category: 'Immunology' },
+  { name: 'Hepatitis C Antibody (Anti-HCV)', category: 'Immunology' },
+  { name: 'HIV 1 & 2 Screening Test', category: 'Immunology' },
+  { name: 'VDRL / RPR Syphilis Test', category: 'Immunology' },
+  { name: 'Blood Culture & Sensitivity', category: 'Microbiology' },
+  { name: 'Urine Culture & Sensitivity', category: 'Microbiology' },
+  { name: 'Sputum AFB for TB', category: 'Microbiology' },
+  { name: 'GeneXpert / CBNAAT for TB', category: 'Microbiology' },
+
+  // Immunology & Autoimmune
+  { name: 'ANA (Antinuclear Antibodies)', category: 'Immunology' },
+  { name: 'Rheumatoid Factor (RF)', category: 'Immunology' },
+  { name: 'Anti-CCP Antibodies', category: 'Immunology' },
+  { name: 'Serum IgE Level (Allergy)', category: 'Immunology' },
+
+  // Thyroid, Hormones & Vitamins
+  { name: 'Thyroid Profile (T3, T4, TSH)', category: 'Pathology' },
+  { name: 'Free T3 & Free T4', category: 'Pathology' },
+  { name: 'Anti-TPO Antibodies', category: 'Immunology' },
+  { name: 'Vitamin D3 Level (25-OH)', category: 'Pathology' },
+  { name: 'Vitamin B12 Level', category: 'Pathology' },
+  { name: 'Serum Prolactin', category: 'Pathology' },
+  { name: 'Serum Cortisol (8 AM)', category: 'Pathology' },
+  { name: 'Serum Testosterone (Total)', category: 'Pathology' },
+  { name: 'Beta-hCG (Pregnancy Test)', category: 'Pathology' },
+  { name: 'PSA (Prostate Specific Antigen)', category: 'Pathology' },
+  { name: 'CA-125 (Ovarian Marker)', category: 'Pathology' },
+  { name: 'CEA (Carcinoembryonic Antigen)', category: 'Pathology' },
+
+  // Urine, Stool & Cytology
+  { name: 'Urine Routine & Microscopy', category: 'Pathology' },
+  { name: 'Urine Microalbumin', category: 'Pathology' },
+  { name: 'Urine 24-Hour Protein', category: 'Pathology' },
+  { name: 'Stool Routine & Occult Blood', category: 'Pathology' },
+  { name: 'Semen Analysis', category: 'Pathology' },
+  { name: 'Pap Smear Cytology', category: 'Pathology' },
+  { name: 'FNAC (Fine Needle Aspiration)', category: 'Pathology' },
+  { name: 'Biopsy Histopathology', category: 'Pathology' },
+
+  // Radiology & Imaging
+  { name: 'Chest X-Ray PA View', category: 'Radiology' },
+  { name: 'Chest X-Ray AP View', category: 'Radiology' },
+  { name: 'X-Ray KUB (Abdomen)', category: 'Radiology' },
+  { name: 'X-Ray Cervical / Lumbar Spine', category: 'Radiology' },
+  { name: 'Ultrasound Abdomen & Pelvis (USG)', category: 'Radiology' },
+  { name: 'Ultrasound Whole Abdomen', category: 'Radiology' },
+  { name: 'Ultrasound KUB & Prostate', category: 'Radiology' },
+  { name: 'Color Doppler Lower Limb', category: 'Radiology' },
+  { name: 'Mammography (Bilateral)', category: 'Radiology' },
+  { name: 'CT Scan Brain / Head', category: 'Radiology' },
+  { name: 'CT Scan Chest (HRCT)', category: 'Radiology' },
+  { name: 'CT Scan Abdomen & Pelvis', category: 'Radiology' },
+  { name: 'MRI Brain (Plain & Contrast)', category: 'Radiology' },
+  { name: 'MRI Spine (Cervical / Lumbar)', category: 'Radiology' },
+  { name: 'MRI Knee Joint', category: 'Radiology' },
+  { name: 'DEXA Bone Densitometry', category: 'Radiology' },
+
+  // Cardiology & Special Investigations
+  { name: 'ECG (12 Lead Electrocardiogram)', category: 'Cardiology' },
+  { name: 'Echocardiogram (2D Echo)', category: 'Cardiology' },
+  { name: 'TMT (Treadmill Stress Test)', category: 'Cardiology' },
+  { name: 'Holter Monitoring (24-Hour)', category: 'Cardiology' },
+  { name: 'PFT (Spirometry / Lung Function)', category: 'Other' },
+  { name: 'Arterial Blood Gas (ABG)', category: 'Pathology' }
 ];
 
 const Technicians = () => {
