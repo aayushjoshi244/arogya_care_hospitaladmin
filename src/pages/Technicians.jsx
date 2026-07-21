@@ -83,27 +83,27 @@ const ImageUploadField = ({ label, value, onChange, uploading, error }) => {
 };
 
 const STANDARD_LAB_TESTS = [
-  { name: 'Complete Blood Count (CBC)', category: 'Pathology', price: 350 },
-  { name: 'Dengue NS1 Antigen & IgM/IgG', category: 'Immunology', price: 600 },
-  { name: 'Typhoid Widal Test', category: 'Pathology', price: 300 },
-  { name: 'Urine Routine & Microscopy', category: 'Pathology', price: 200 },
-  { name: 'Blood Sugar Fasting (FBS)', category: 'Pathology', price: 150 },
-  { name: 'Blood Sugar Post Prandial (PPBS)', category: 'Pathology', price: 150 },
-  { name: 'Random Blood Sugar (RBS)', category: 'Pathology', price: 120 },
-  { name: 'HbA1c (Glycated Hemoglobin)', category: 'Pathology', price: 500 },
-  { name: 'Liver Function Test (LFT)', category: 'Pathology', price: 750 },
-  { name: 'Kidney Function Test (KFT / RFT)', category: 'Pathology', price: 700 },
-  { name: 'Lipid Profile (Cholesterol)', category: 'Pathology', price: 650 },
-  { name: 'Thyroid Profile (T3, T4, TSH)', category: 'Pathology', price: 550 },
-  { name: 'Chest X-Ray PA View', category: 'Radiology', price: 400 },
-  { name: 'ECG (12 Lead Electrocardiogram)', category: 'Cardiology', price: 300 },
-  { name: 'Ultrasound Abdomen & Pelvis (USG)', category: 'Radiology', price: 1200 },
-  { name: 'Vitamin D3 Level', category: 'Pathology', price: 1100 },
-  { name: 'Vitamin B12 Level', category: 'Pathology', price: 900 },
-  { name: 'CRP (C-Reactive Protein)', category: 'Immunology', price: 450 },
-  { name: 'Erythrocyte Sedimentation Rate (ESR)', category: 'Pathology', price: 150 },
-  { name: 'Serum Creatinine & Blood Urea', category: 'Pathology', price: 300 },
-  { name: 'Serum Electrolytes (Na+, K+, Cl-)', category: 'Pathology', price: 500 }
+  { name: 'Complete Blood Count (CBC)', category: 'Pathology' },
+  { name: 'Dengue NS1 Antigen & IgM/IgG', category: 'Immunology' },
+  { name: 'Typhoid Widal Test', category: 'Pathology' },
+  { name: 'Urine Routine & Microscopy', category: 'Pathology' },
+  { name: 'Blood Sugar Fasting (FBS)', category: 'Pathology' },
+  { name: 'Blood Sugar Post Prandial (PPBS)', category: 'Pathology' },
+  { name: 'Random Blood Sugar (RBS)', category: 'Pathology' },
+  { name: 'HbA1c (Glycated Hemoglobin)', category: 'Pathology' },
+  { name: 'Liver Function Test (LFT)', category: 'Pathology' },
+  { name: 'Kidney Function Test (KFT / RFT)', category: 'Pathology' },
+  { name: 'Lipid Profile (Cholesterol)', category: 'Pathology' },
+  { name: 'Thyroid Profile (T3, T4, TSH)', category: 'Pathology' },
+  { name: 'Chest X-Ray PA View', category: 'Radiology' },
+  { name: 'ECG (12 Lead Electrocardiogram)', category: 'Cardiology' },
+  { name: 'Ultrasound Abdomen & Pelvis (USG)', category: 'Radiology' },
+  { name: 'Vitamin D3 Level', category: 'Pathology' },
+  { name: 'Vitamin B12 Level', category: 'Pathology' },
+  { name: 'CRP (C-Reactive Protein)', category: 'Immunology' },
+  { name: 'Erythrocyte Sedimentation Rate (ESR)', category: 'Pathology' },
+  { name: 'Serum Creatinine & Blood Urea', category: 'Pathology' },
+  { name: 'Serum Electrolytes (Na+, K+, Cl-)', category: 'Pathology' }
 ];
 
 const Technicians = () => {
@@ -175,10 +175,10 @@ const Technicians = () => {
       return;
     }
     const parts = value.split(':::');
-    if (parts.length >= 4) {
-      setNewTestName(parts[1]);
-      setNewTestPrice(parts[2]);
-      setNewTestCategory(parts[3]);
+    if (parts.length >= 2) {
+      setNewTestName(parts[1] || '');
+      setNewTestPrice(parts[2] || '');
+      setNewTestCategory(parts[3] || 'Pathology');
     }
   };
 
@@ -192,10 +192,10 @@ const Technicians = () => {
       return;
     }
     const parts = value.split(':::');
-    if (parts.length >= 4) {
-      setEditTestName(parts[1]);
-      setEditTestPrice(parts[2]);
-      setEditTestCategory(parts[3]);
+    if (parts.length >= 2) {
+      setEditTestName(parts[1] || '');
+      setEditTestPrice(parts[2] || '');
+      setEditTestCategory(parts[3] || 'Pathology');
     }
   };
 
@@ -588,15 +588,15 @@ const Technicians = () => {
                       <optgroup label="Hospital Registered Tests">
                         {existingLabTests.map((t) => (
                           <option key={`hosp-onb-${t.id}`} value={`hosp:::${t.test_name}:::${t.price}:::${t.category}`}>
-                            {t.test_name} (₹{t.price}) — {t.category}
+                            {t.test_name} — {t.category}
                           </option>
                         ))}
                       </optgroup>
                     )}
                     <optgroup label="Standard Diagnostic Tests Catalog">
                       {STANDARD_LAB_TESTS.map((t, idx) => (
-                        <option key={`std-onb-${idx}`} value={`std:::${t.name}:::${t.price}:::${t.category}`}>
-                          {t.name} (₹{t.price}) — {t.category}
+                        <option key={`std-onb-${idx}`} value={`std:::${t.name}::::::${t.category}`}>
+                          {t.name} — {t.category}
                         </option>
                       ))}
                     </optgroup>
@@ -773,15 +773,15 @@ const Technicians = () => {
                       <optgroup label="Hospital Registered Tests">
                         {existingLabTests.map((t) => (
                           <option key={`hosp-edit-${t.id}`} value={`hosp:::${t.test_name}:::${t.price}:::${t.category}`}>
-                            {t.test_name} (₹{t.price}) — {t.category}
+                            {t.test_name} — {t.category}
                           </option>
                         ))}
                       </optgroup>
                     )}
                     <optgroup label="Standard Diagnostic Tests Catalog">
                       {STANDARD_LAB_TESTS.map((t, idx) => (
-                        <option key={`std-edit-${idx}`} value={`std:::${t.name}:::${t.price}:::${t.category}`}>
-                          {t.name} (₹{t.price}) — {t.category}
+                        <option key={`std-edit-${idx}`} value={`std:::${t.name}::::::${t.category}`}>
+                          {t.name} — {t.category}
                         </option>
                       ))}
                     </optgroup>
